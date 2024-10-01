@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:tultal/Page/Homeuser.dart';
 import 'package:tultal/Page/Registerdriver.dart';
