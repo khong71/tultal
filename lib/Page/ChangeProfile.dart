@@ -1,16 +1,15 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import 'package:tultal/Page/ChangeProfile.dart';
 
-class Profilepage extends StatefulWidget {
-  const Profilepage({super.key});
+class Changeprofile extends StatefulWidget {
+  const Changeprofile({super.key});
 
   @override
-  State<Profilepage> createState() => _ProfilepageState();
+  State<Changeprofile> createState() => _ChangeprofileState();
 }
 
-class _ProfilepageState extends State<Profilepage> {
+class _ChangeprofileState extends State<Changeprofile> {
   late Future<void> loadData;
 
   TextEditingController fullnameCtl = TextEditingController();
@@ -33,7 +32,7 @@ class _ProfilepageState extends State<Profilepage> {
             Navigator.pop(context); // กลับไปยังหน้าก่อนหน้า
           },
         ),
-        title: Text('Profile'), // ชื่อหน้าปัจจุบัน
+        title: Text('Chang Profile'), // ชื่อหน้าปัจจุบัน
       ),
       body: SingleChildScrollView(
         child: FutureBuilder(
