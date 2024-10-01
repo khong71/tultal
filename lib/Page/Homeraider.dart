@@ -163,7 +163,6 @@ class _HomeraiderState extends State<Homeraider> {
           child: const Text(
             'Job work',
             style: TextStyle(color: Colors.white),
-            style: TextStyle(color: Colors.white),
           ),
         ),
       ),
