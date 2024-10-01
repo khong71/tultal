@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tultal/Page/Login.dart';
+import 'package:tultal/Page/Profileraider.dart';
 
 class Homeraider extends StatefulWidget {
   const Homeraider({super.key});
@@ -57,10 +58,10 @@ class _HomeraiderState extends State<Homeraider> {
                   'https://static-00.iconduck.com/assets.00/profile-circle-icon-2048x2048-cqe5466q.png'),
             ),
             onPressed: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => ProfilePage()),
-              // );
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Profileraider()),
+              );
             },
           ),
           title: const Text('Hello, raider', style: TextStyle(color: Colors.black)),
@@ -85,7 +86,7 @@ class _HomeraiderState extends State<Homeraider> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'list', // 'List' header
+                      'List', // 'List' header
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 20),
@@ -118,8 +119,11 @@ class _HomeraiderState extends State<Homeraider> {
               IconButton(
                 icon: const Icon(Icons.person_outline, size: 40),
                 onPressed: () {
-                  // Navigate to another page
-                },
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Profileraider()),
+              );
+            },
               ),
               IconButton(
                 icon: const Icon(Icons.logout, size: 40),
@@ -165,7 +169,21 @@ class _HomeraiderState extends State<Homeraider> {
           },
           child: const Text(
             'Job work',
-            style: TextStyle(color: Colors.white),
+            const SizedBox(height: 30),
+            const SizedBox(height: 20),
+                const Text('Password'),
+                const SizedBox(height: 8),
+                TextField(
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.7),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                  ),
+                ),
           ),
         ),
       ),
