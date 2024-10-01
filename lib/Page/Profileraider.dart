@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tultal/Page/Changeraider.dart';
 
 class Profileraider extends StatefulWidget {
   const Profileraider({super.key});
@@ -33,11 +34,12 @@ class _ProfileraiderState extends State<Profileraider> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const CircleAvatar(
-              radius: 50,
+              radius: 80,
               backgroundColor: Colors.grey,
-              child: Icon(Icons.person, size: 60, color: Colors.white),
+
+              //แสดงรูปผู้ใช้ตรงนี้น่ะ
+
             ),
-            const SizedBox(height: 30),
             const SizedBox(height: 20),
             const Align(
               alignment: Alignment.centerLeft,
@@ -45,7 +47,7 @@ class _ProfileraiderState extends State<Profileraider> {
             ),
             const SizedBox(height: 8),
             TextField(
-              enabled: false, // Make the TextField non-editable
+              enabled: false,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white.withOpacity(0.7),
@@ -92,12 +94,16 @@ class _ProfileraiderState extends State<Profileraider> {
             const SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
-                // Handle button press
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const Changeraider()),
+                  );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF5A3827), // Dark brown color
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
