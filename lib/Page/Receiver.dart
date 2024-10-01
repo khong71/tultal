@@ -6,14 +6,14 @@ import 'package:tultal/Page/CheckStatus.dart';
 import 'package:tultal/Page/Homeuser.dart';
 import 'package:tultal/Page/Login.dart';
 
-class Sender extends StatefulWidget {
-  const Sender({super.key});
+class Receiver extends StatefulWidget {
+  const Receiver({super.key});
 
   @override
-  State<Sender> createState() => _SenderState();
+  State<Receiver> createState() => _ReceiverState();
 }
 
-class _SenderState extends State<Sender> {
+class _ReceiverState extends State<Receiver> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +25,7 @@ class _SenderState extends State<Sender> {
             Navigator.pop(context); // กลับไปยังหน้าก่อนหน้า
           },
         ),
-        title: Text('Sender'), // ชื่อหน้าปัจจุบัน
+        title: Text('Receiver'), // ชื่อหน้าปัจจุบัน
       ),
       bottomNavigationBar: BottomAppBar(
         color: const Color(0xFFE2DBBF),

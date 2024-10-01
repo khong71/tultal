@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:tultal/Page/Homeraider.dart';
 import 'package:tultal/Page/Homeuser.dart';
 import 'package:tultal/Page/Registerdriver.dart';
 import 'package:tultal/Page/Registeruser.dart';
@@ -14,6 +16,8 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   String? errorMessage;
+
+  final box = GetStorage(); // สร้าง instance ของ GetStorage
 
   @override
   Widget build(BuildContext context) {
@@ -134,11 +138,14 @@ class _LoginPageState extends State<LoginPage> {
 
   // Example user validation
   if (email == '1' && password == '1') {
-   
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const Homeuser()),
-    );
+            // เมื่อผู้ใช้ล็อกอินสำเร็จ
+            box.write('isLoggedIn', true); // เก็บสถานะการล็อกอิน
+            Navigator.pushReplacement(
+              context,
+              // ignore: prefer_const_constructors
+              MaterialPageRoute(builder: (context) => Homeuser()), // ไปหน้า HomePage
+            );
+          
   } else {
     // แสดงข้อความผิดพลาด
     setState(() {
