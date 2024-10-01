@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tultal/Page/Homeraider.dart';
 import 'package:tultal/Page/Homeuser.dart';
 import 'package:tultal/Page/Registerdriver.dart';
 import 'package:tultal/Page/Registeruser.dart';
