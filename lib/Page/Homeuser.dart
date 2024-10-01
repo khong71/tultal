@@ -13,10 +13,6 @@ class _HomeuserState extends State<Homeuser> {
   String? username; // ตัวแปรสำหรับเก็บชื่อผู้ใช้
 
   @override
-  void initState() {
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
