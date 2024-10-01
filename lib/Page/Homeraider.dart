@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tultal/Page/Login.dart';
-import 'package:tultal/Page/Profileraider.dart';
 
 class Homeraider extends StatefulWidget {
   const Homeraider({super.key});
@@ -15,24 +13,21 @@ class _HomeraiderState extends State<Homeraider> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('SingOut'),
-          content: const Text('Are you sure you want to leave?'),
+          title: const Text('ออกจากระบบ'),
+          content: const Text('คุณต้องการออกจากระบบหรือไม่?'),
           actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.popUntil(context, (route) => route.isFirst); 
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()), 
-                );
-              },
-              child: const Text('ok'),
-            ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // ยกเลิก
               },
-              child: const Text('cancle'),
+              child: const Text('ยกเลิก'),
+            ),
+            TextButton(
+              onPressed: () {
+                // เพิ่มการออกจากระบบที่นี่
+                Navigator.of(context).pop(); // ปิดกล่องโต้ตอบ
+              },
+              child: const Text('ตกลง'),
             ),
           ],
         );
@@ -58,10 +53,10 @@ class _HomeraiderState extends State<Homeraider> {
                   'https://static-00.iconduck.com/assets.00/profile-circle-icon-2048x2048-cqe5466q.png'),
             ),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const Profileraider()),
-              );
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => ProfilePage()),
+              // );
             },
           ),
           title: const Text('Hello, raider', style: TextStyle(color: Colors.black)),
@@ -86,7 +81,7 @@ class _HomeraiderState extends State<Homeraider> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'List', // 'List' header
+                      'รายการ', // 'List' header
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 20),
@@ -119,15 +114,12 @@ class _HomeraiderState extends State<Homeraider> {
               IconButton(
                 icon: const Icon(Icons.person_outline, size: 40),
                 onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const Profileraider()),
-              );
-            },
+                  // Navigate to another page
+                },
               ),
               IconButton(
                 icon: const Icon(Icons.logout, size: 40),
-                onPressed: _showLogoutDialog,
+                onPressed: _showLogoutDialog, // แสดงกล่องโต้ตอบเมื่อกดออกจากระบบ
               ),
             ],
           ),
@@ -169,21 +161,7 @@ class _HomeraiderState extends State<Homeraider> {
           },
           child: const Text(
             'Job work',
-            const SizedBox(height: 30),
-            const SizedBox(height: 20),
-                const Text('Password'),
-                const SizedBox(height: 8),
-                TextField(
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.7),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                  ),
-                ),
+            style: TextStyle(color: Colors.white),
           ),
         ),
       ),
