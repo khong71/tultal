@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:tultal/Page/Homeraider.dart';
 import 'package:tultal/Page/Homeuser.dart';
 import 'package:tultal/Page/Registerdriver.dart';
 import 'package:tultal/Page/Registeruser.dart';
@@ -134,13 +135,10 @@ class _LoginPageState extends State<LoginPage> {
   final email = emailController.text.trim();
   final password = passwordController.text.trim();
 
-  // ตรวจสอบข้อมูลผู้ใช้ (ในที่นี้เป็นเพียงตัวอย่าง)
+  // Example user validation
   if (email == '1' && password == '1') {
-    // ใช้ Navigator.pushReplacement หรือ Get.off เพื่อแทนที่หน้า Login
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const Homeuser()),
-    );
+   
+    Navigator() => const Homeuser(); // ใช้ Get.off เพื่อแทนที่หน้า Login
   } else {
     // แสดงข้อความผิดพลาด
     setState(() {
@@ -148,6 +146,7 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 }
+
 
 
 
