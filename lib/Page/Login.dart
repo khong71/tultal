@@ -142,7 +142,13 @@ class _LoginPageState extends State<LoginPage> {
       context,
       MaterialPageRoute(builder: (context) => const Homeuser()),
     );
-  } else {
+  } else if (email == '2' && password == '2'){
+// Navigate to Homeuser page
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const Homeraider()),
+    );
+  }else {
     // แสดงข้อความผิดพลาด
     setState(() {
       errorMessage = 'Invalid email or password';
