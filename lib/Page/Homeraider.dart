@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tultal/Page/Login.dart';
+import 'package:tultal/Page/Profileraider.dart';
 
 class Homeraider extends StatefulWidget {
   const Homeraider({super.key});
@@ -13,21 +15,23 @@ class _HomeraiderState extends State<Homeraider> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('ออกจากระบบ'),
-          content: const Text('คุณต้องการออกจากระบบหรือไม่?'),
+          title: const Text('SingOut'),
+          content: const Text('Are you sure you want to logout?'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // ยกเลิก
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                );
               },
-              child: const Text('ยกเลิก'),
+              child: const Text('Ok'),
             ),
             TextButton(
               onPressed: () {
-                // เพิ่มการออกจากระบบที่นี่
-                Navigator.of(context).pop(); // ปิดกล่องโต้ตอบ
+                Navigator.of(context).pop(); 
               },
-              child: const Text('ตกลง'),
+              child: const Text('Cancle'),
             ),
           ],
         );
@@ -53,10 +57,10 @@ class _HomeraiderState extends State<Homeraider> {
                   'https://static-00.iconduck.com/assets.00/profile-circle-icon-2048x2048-cqe5466q.png'),
             ),
             onPressed: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => ProfilePage()),
-              // );
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Profileraider()),
+              );
             },
           ),
           title: const Text('Hello, raider',
@@ -82,8 +86,9 @@ class _HomeraiderState extends State<Homeraider> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'รายการ', // 'List' header
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      'List', // 'List' header
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 20),
                     listItem('ผู้รับ', '0800000000'),
@@ -115,12 +120,17 @@ class _HomeraiderState extends State<Homeraider> {
               IconButton(
                 icon: const Icon(Icons.person_outline, size: 40),
                 onPressed: () {
-                  // Navigate to another page
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const Profileraider()),
+                  );
                 },
               ),
               IconButton(
                 icon: const Icon(Icons.logout, size: 40),
-                onPressed: _showLogoutDialog, // แสดงกล่องโต้ตอบเมื่อกดออกจากระบบ
+                onPressed:
+                    _showLogoutDialog, // แสดงกล่องโต้ตอบเมื่อกดออกจากระบบ
               ),
             ],
           ),
