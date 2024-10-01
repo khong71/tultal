@@ -39,48 +39,56 @@ class _ProfileraiderState extends State<Profileraider> {
             ),
             const SizedBox(height: 30),
             const SizedBox(height: 20),
-                const Text('username'),
-                const SizedBox(height: 8),
-                TextField(
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.7),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                  ),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Username'),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              enabled: false, // Make the TextField non-editable
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.7),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+              ),
+            ),
             const SizedBox(height: 20),
-                const Text('email'),
-                const SizedBox(height: 8),
-                TextField(
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.7),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                  ),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Email'),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              enabled: false, // Make the TextField non-editable
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.7),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+              ),
+            ),
             const SizedBox(height: 20),
-                const Text('license plate'),
-                const SizedBox(height: 8),
-                TextField(
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.7),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                  ),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text('License Plate'),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              enabled: false, // Make the TextField non-editable
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.7),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+              ),
+            ),
             const SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
@@ -88,13 +96,16 @@ class _ProfileraiderState extends State<Profileraider> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF5A3827), // Dark brown color
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: const Text('Change',
-              style: TextStyle(color: Colors.white),),
+              child: const Text(
+                'Change',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),
@@ -103,8 +114,3 @@ class _ProfileraiderState extends State<Profileraider> {
   }
 }
 
-void main() {
-  runApp(const MaterialApp(
-    home: Profileraider(),
-  ));
-}

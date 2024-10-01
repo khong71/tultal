@@ -59,7 +59,8 @@ class _HomeraiderState extends State<Homeraider> {
               // );
             },
           ),
-          title: const Text('Hello, raider', style: TextStyle(color: Colors.black)),
+          title: const Text('Hello, raider',
+              style: TextStyle(color: Colors.black)),
         ),
         body: Stack(
           children: [
@@ -161,6 +162,7 @@ class _HomeraiderState extends State<Homeraider> {
           },
           child: const Text(
             'Job work',
+            style: TextStyle(color: Colors.white),
             style: TextStyle(color: Colors.white),
           ),
         ),
