@@ -146,7 +146,15 @@ class _LoginPageState extends State<LoginPage> {
               MaterialPageRoute(builder: (context) => Homeuser()), // ไปหน้า HomePage
             );
           
-  } else {
+  } else if(email == '2' && password == '2'){
+ // เมื่อผู้ใช้ล็อกอินสำเร็จ
+            box.write('isLoggedIn', true); // เก็บสถานะการล็อกอิน
+            Navigator.pushReplacement(
+              context,
+              // ignore: prefer_const_constructors
+              MaterialPageRoute(builder: (context) => Homeraider()), // ไปหน้า HomePage
+            );
+  }else {
     // แสดงข้อความผิดพลาด
     setState(() {
       errorMessage = 'Invalid email or password';
