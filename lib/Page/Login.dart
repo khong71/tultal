@@ -138,7 +138,7 @@ class _LoginPageState extends State<LoginPage> {
   // Example user validation
   if (email == '1' && password == '1') {
    
-    Navigator() => const Homeuser(); // ใช้ Get.off เพื่อแทนที่หน้า Login
+    Navigator() => const Homeuser(); 
   } else {
     // แสดงข้อความผิดพลาด
     setState(() {
