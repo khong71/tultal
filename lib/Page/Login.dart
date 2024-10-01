@@ -136,8 +136,11 @@ class _LoginPageState extends State<LoginPage> {
 
   // ตรวจสอบข้อมูลผู้ใช้ (ในที่นี้เป็นเพียงตัวอย่าง)
   if (email == '1' && password == '1') {
-   
-    Navigator() => const Homeuser(); // ใช้ Get.off เพื่อแทนที่หน้า Login
+    // ใช้ Navigator.pushReplacement หรือ Get.off เพื่อแทนที่หน้า Login
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const Homeuser()),
+    );
   } else {
     // แสดงข้อความผิดพลาด
     setState(() {
