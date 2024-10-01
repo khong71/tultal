@@ -138,7 +138,10 @@ class _LoginPageState extends State<LoginPage> {
   // Example user validation
   if (email == '1' && password == '1') {
    
-    Navigator() => const Homeuser(); 
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const Homeuser()),
+    );
   } else {
     // แสดงข้อความผิดพลาด
     setState(() {
