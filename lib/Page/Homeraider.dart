@@ -16,23 +16,22 @@ class _HomeraiderState extends State<Homeraider> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('SingOut'),
-          content: const Text('Are you sure you want to leave?'),
+          content: const Text('Are you sure you want to logout?'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.popUntil(context, (route) => route.isFirst); 
-                Navigator.pushReplacement(
+                Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()), 
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
                 );
               },
-              child: const Text('ok'),
+              child: const Text('Ok'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // ยกเลิก
+                Navigator.of(context).pop(); 
               },
-              child: const Text('cancle'),
+              child: const Text('Cancle'),
             ),
           ],
         );
@@ -64,7 +63,8 @@ class _HomeraiderState extends State<Homeraider> {
               );
             },
           ),
-          title: const Text('Hello, raider', style: TextStyle(color: Colors.black)),
+          title: const Text('Hello, raider',
+              style: TextStyle(color: Colors.black)),
         ),
         body: Stack(
           children: [
@@ -87,7 +87,8 @@ class _HomeraiderState extends State<Homeraider> {
                   children: [
                     const Text(
                       'List', // 'List' header
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 20),
                     listItem('ผู้รับ', '0800000000'),
@@ -119,15 +120,17 @@ class _HomeraiderState extends State<Homeraider> {
               IconButton(
                 icon: const Icon(Icons.person_outline, size: 40),
                 onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const Profileraider()),
-              );
-            },
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const Profileraider()),
+                  );
+                },
               ),
               IconButton(
                 icon: const Icon(Icons.logout, size: 40),
-                onPressed: _showLogoutDialog,
+                onPressed:
+                    _showLogoutDialog, // แสดงกล่องโต้ตอบเมื่อกดออกจากระบบ
               ),
             ],
           ),
@@ -169,21 +172,7 @@ class _HomeraiderState extends State<Homeraider> {
           },
           child: const Text(
             'Job work',
-            const SizedBox(height: 30),
-            const SizedBox(height: 20),
-                const Text('Password'),
-                const SizedBox(height: 8),
-                TextField(
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.7),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                  ),
-                ),
+            style: TextStyle(color: Colors.white),
           ),
         ),
       ),
