@@ -86,7 +86,7 @@ class _HomeuserState extends State<Homeuser> {
                         ),
                         // ตัวอย่างรูปภาพ
                         Image.asset(
-                          'assets/image/logo.png', // แทนที่ด้วยที่อยู่ของรูปภาพที่ต้องการ
+                          'assets/image/black-turtle.png', // แทนที่ด้วยที่อยู่ของรูปภาพที่ต้องการ
                           width: 50, // กำหนดความกว้างของรูปภาพ
                           height: 150, // กำหนดความสูงของรูปภาพ
                         ),
@@ -130,7 +130,7 @@ class _HomeuserState extends State<Homeuser> {
                         ),
                         // ตัวอย่างรูปภาพ
                         Image.asset(
-                          'assets/image/logo.png', // แทนที่ด้วยที่อยู่ของรูปภาพที่ต้องการ
+                          'assets/image/box.jpg', // แทนที่ด้วยที่อยู่ของรูปภาพที่ต้องการ
                           width: 50, // กำหนดความกว้างของรูปภาพ
                           height: 150, // กำหนดความสูงของรูปภาพ
                         ),
