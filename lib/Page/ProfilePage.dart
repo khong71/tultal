@@ -27,6 +27,7 @@ class _ProfilepageState extends State<Profilepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: const Color(0xFFDBC7A1),
         leading: IconButton(
           icon: Icon(Icons.arrow_back), // ไอคอนย้อนกลับ
           onPressed: () {
@@ -35,92 +36,94 @@ class _ProfilepageState extends State<Profilepage> {
         ),
         title: Text('Profile'), // ชื่อหน้าปัจจุบัน
       ),
-      body: SingleChildScrollView(
-        child: FutureBuilder(
-            future: loadData,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState != ConnectionState.done) {
-                return const Center(
-                  child: CircularProgressIndicator(),
+      body: Container(
+        color: const Color(0xFFDBC7A1),
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const CircleAvatar(
+              radius: 80,
+              backgroundColor: Colors.grey,
+
+              //แสดงรูปผู้ใช้ตรงนี้น่ะ
+            ),
+            const SizedBox(height: 20),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Username'),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              enabled: false,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.7),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Email'),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              enabled: false, // Make the TextField non-editable
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.7),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text('address'),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              enabled: false, // Make the TextField non-editable
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.7),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+              ),
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const Changeprofile()),
                 );
-              }
-
-              if (snapshot.hasError) {
-                return Center(
-                  child: Text('เกิดข้อผิดพลาดในการโหลดข้อมูล'),
-                );
-              }
-
-              fullnameCtl.text = 'gg';
-              emailCtl.text = 'gg';
-              phoneCtl.text = 'gg';
-
-              return SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: Column(children: [
-                    SizedBox(
-                      width: 200,
-                      height: 200, // เพิ่ม height เพื่อให้ได้ขนาดวงกลม
-                      child: ClipOval(
-                        child: Image.network(
-                          'https://png.pngtree.com/thumb_back/fh260/background/20230610/pngtree-an-orange-kitten-sitting-on-a-table-with-drops-of-water-image_2935343.jpg',
-                          fit:
-                              BoxFit.cover, // ทำให้รูปภาพครอบคลุมพื้นที่ทั้งหมด
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Username'),
-                          TextField(
-                            controller: fullnameCtl,
-                          )
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('E-mail'),
-                          TextField(
-                            controller: phoneCtl,
-                          )
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Address'),
-                          TextField(
-                            controller: emailCtl,
-                          )
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Center(
-                          child: FilledButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Changeprofile()),
-                          );
-                        },
-                        child: const Text('Change'),
-                      )),
-                    )
-                  ]));
-            }),
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF5A3827), // Dark brown color
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text(
+                'Change',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
