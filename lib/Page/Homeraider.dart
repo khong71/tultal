@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tultal/Page/Login.dart';
+import 'package:tultal/Page/Profileraider.dart';
 
 class Homeraider extends StatefulWidget {
   const Homeraider({super.key});
@@ -8,75 +10,127 @@ class Homeraider extends StatefulWidget {
 }
 
 class _HomeraiderState extends State<Homeraider> {
+  Future<void> _showLogoutDialog() async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('SingOut'),
+          content: const Text('Are you sure you want to logout?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                );
+              },
+              child: const Text('Ok'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); 
+              },
+              child: const Text('Cancle'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFEADABC), // Background color
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        leading: IconButton(
-          icon: const CircleAvatar(
-            backgroundImage: NetworkImage(
-                'https://static-00.iconduck.com/assets.00/profile-circle-icon-2048x2048-cqe5466q.png'), // Online profile image
+    return WillPopScope(
+      onWillPop: () async {
+        // เรียกแสดงกล่องโต้ตอบเมื่อกดปุ่มย้อนกลับ
+        _showLogoutDialog();
+        return false; // ปิดหน้าต่างในขณะนี้
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFEADABC), // Background color
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          leading: IconButton(
+            icon: const CircleAvatar(
+              backgroundImage: NetworkImage(
+                  'https://static-00.iconduck.com/assets.00/profile-circle-icon-2048x2048-cqe5466q.png'),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Profileraider()),
+              );
+            },
           ),
-          onPressed: () {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(builder: (context) => ProfilePage()),
-            // );
-          },
+          title: const Text('Hello, raider',
+              style: TextStyle(color: Colors.black)),
         ),
-        title: const Text('Hello, raider', style: TextStyle(color: Colors.black)),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'รายการ', // 'List' header
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        body: Stack(
+          children: [
+            Center(
+              child: Opacity(
+                opacity: 0.1,
+                child: Image.asset(
+                  'assets/image/turtle.png',
+                  width: 200,
+                  height: 200,
+                ),
               ),
-              const SizedBox(height: 20),
-              listItem('ผู้รับ', '0800000000'),
-              const SizedBox(height: 10),
-              listItem('ผู้รับ', '0800000001'),
-              const SizedBox(height: 10),
-              listItem('ผู้รับ', '0800000002'),
-              const SizedBox(height: 10),
-              listItem('ผู้รับ', '0800000003'),
-              const SizedBox(height: 10),
-              listItem('ผู้รับ', '0800000004'),
-              const SizedBox(height: 10),
-              listItem('ผู้รับ', '0800000005'),
-              const SizedBox(height: 10),
-              listItem('ผู้รับ', '0800000006'),
-              const SizedBox(height: 10),
-              listItem('ผู้รับ', '0800000007'),
-            ],
-          ),
+            ),
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'List', // 'List' header
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 20),
+                    listItem('ผู้รับ', '0800000000'),
+                    const SizedBox(height: 10),
+                    listItem('ผู้รับ', '0800000001'),
+                    const SizedBox(height: 10),
+                    listItem('ผู้รับ', '0800000002'),
+                    const SizedBox(height: 10),
+                    listItem('ผู้รับ', '0800000003'),
+                    const SizedBox(height: 10),
+                    listItem('ผู้รับ', '0800000004'),
+                    const SizedBox(height: 10),
+                    listItem('ผู้รับ', '0800000005'),
+                    const SizedBox(height: 10),
+                    listItem('ผู้รับ', '0800000006'),
+                    const SizedBox(height: 10),
+                    listItem('ผู้รับ', '0800000007'),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
-      ),
-      // Bottom drawer with icons
-      bottomNavigationBar: BottomAppBar(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 0),
+        // Bottom drawer with icons
+        bottomNavigationBar: BottomAppBar(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               IconButton(
-                icon: const Icon(Icons.person_outline, size: 30),
+                icon: const Icon(Icons.person_outline, size: 40),
                 onPressed: () {
-                  // Navigate to another page
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const Profileraider()),
+                  );
                 },
               ),
               IconButton(
-                icon: const Icon(Icons.logout, size: 30),
-                onPressed: () {
-                  // Logout action
-                },
+                icon: const Icon(Icons.logout, size: 40),
+                onPressed:
+                    _showLogoutDialog, // แสดงกล่องโต้ตอบเมื่อกดออกจากระบบ
               ),
             ],
           ),
@@ -116,8 +170,9 @@ class _HomeraiderState extends State<Homeraider> {
           onPressed: () {
             // Button action
           },
-          child: const Text('Job work'
-          ,style: TextStyle(color: Colors.white),
+          child: const Text(
+            'Job work',
+            style: TextStyle(color: Colors.white),
           ),
         ),
       ),
