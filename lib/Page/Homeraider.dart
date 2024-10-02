@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tultal/Page/Login.dart';
 import 'package:tultal/Page/Profileraider.dart';
+import 'package:tultal/Page/work.dart';
 
 class Homeraider extends StatefulWidget {
   const Homeraider({super.key});
@@ -92,20 +93,6 @@ class _HomeraiderState extends State<Homeraider> {
                     ),
                     const SizedBox(height: 20),
                     listItem('ผู้รับ', '0800000000'),
-                    const SizedBox(height: 10),
-                    listItem('ผู้รับ', '0800000001'),
-                    const SizedBox(height: 10),
-                    listItem('ผู้รับ', '0800000002'),
-                    const SizedBox(height: 10),
-                    listItem('ผู้รับ', '0800000003'),
-                    const SizedBox(height: 10),
-                    listItem('ผู้รับ', '0800000004'),
-                    const SizedBox(height: 10),
-                    listItem('ผู้รับ', '0800000005'),
-                    const SizedBox(height: 10),
-                    listItem('ผู้รับ', '0800000006'),
-                    const SizedBox(height: 10),
-                    listItem('ผู้รับ', '0800000007'),
                   ],
                 ),
               ),
@@ -168,7 +155,7 @@ class _HomeraiderState extends State<Homeraider> {
             ),
           ),
           onPressed: () {
-            // Button action
+            showJobWorkDialog(context);
           },
           child: const Text(
             'Job work',
@@ -178,4 +165,103 @@ class _HomeraiderState extends State<Homeraider> {
       ),
     );
   }
+
+  void showJobWorkDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        contentPadding: const EdgeInsets.all(10.0),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Sender Section with border
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: const EdgeInsets.all(8.0),
+              child: const ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: NetworkImage(
+                      'https://static-00.iconduck.com/assets.00/profile-circle-icon-2048x2048-cqe5466q.png'),
+                ),
+                title: Text("Send"),
+                subtitle: Text("username\n0800000000"),
+              ),
+            ),
+            const SizedBox(height: 10),
+            // Product Image
+            Image.network(
+              'https://th.mlb-korea.com/cdn/shop/files/A_8809947353338_01_JPG_841af844-d94e-4cf4-8153-1b7ce2a50eab.jpg?v=1721013006', // Replace with actual image URL
+              width: 100,
+              height: 100,
+            ),
+            const SizedBox(height: 10),
+
+            // Product Details (dashed lines, etc.)
+            const Text(
+              '----------------------------\n'
+              'Product: T-shirt\n'
+              'Size: L\n'
+              'Color: White\n'
+              '----------------------------',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 10),
+            const Icon(Icons.arrow_downward),
+            const SizedBox(height: 10),
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: const EdgeInsets.all(8.0),
+              child: const ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: NetworkImage(
+                      'https://static-00.iconduck.com/assets.00/profile-circle-icon-2048x2048-cqe5466q.png'),
+                ),
+                title: Text("Receive"),
+                subtitle: Text("username\n0800000000"),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.brown,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Work()),
+                );
+                  },
+                  child: const Text('Job work',
+                      style: TextStyle(color: Colors.white)),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Cancel',
+                      style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 }
