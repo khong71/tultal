@@ -38,7 +38,6 @@ class _ProfileraiderState extends State<Profileraider> {
               backgroundColor: Colors.grey,
 
               //แสดงรูปผู้ใช้ตรงนี้น่ะ
-
             ),
             const SizedBox(height: 20),
             const Align(
@@ -95,10 +94,9 @@ class _ProfileraiderState extends State<Profileraider> {
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const Changeraider()),
-                  );
+                  context,
+                  MaterialPageRoute(builder: (context) => const Changeraider()),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF5A3827), // Dark brown color
@@ -119,4 +117,3 @@ class _ProfileraiderState extends State<Profileraider> {
     );
   }
 }
-
