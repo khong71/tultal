@@ -71,6 +71,7 @@ flutter:
     - assets\image\box.jpg
     - assets\image\black-turtle.png
     - assets\image\3077443.png
+    - assets/config/config.json
 
   # To add assets to your application, add an assets section, like this:
   # assets:
