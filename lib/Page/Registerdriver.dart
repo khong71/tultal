@@ -43,13 +43,13 @@ class _RegisterdriverState extends State<Registerdriver> {
 
     // Email validation
     if (!_emailController.text.endsWith('@gmail.com')) {
-      return "Invalid email format"; // Invalid email format
+      return "Invalid email format EX.test@gmail.com"; // Invalid email format
     }
 
     // Check if there are characters before @gmail.com
     String email = _emailController.text;
     if (email.indexOf('@gmail.com') <= 0) {
-      return "Invalid email format"; // No characters before @gmail.com
+      return "Invalid email format EX.test@gmail.com"; // No characters before @gmail.com
     }
 
     // Check if passwords match

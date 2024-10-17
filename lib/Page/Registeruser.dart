@@ -78,18 +78,18 @@ class _RegisteruserState extends State<Registeruser> {
     // Check if the first character of address is a space
     if (_addressController.text.isNotEmpty &&
         _addressController.text[0] == ' ') {
-      return "Invalid email format"; //รูปแบบที่อยู่ไม่ถูกต้อง
+      return "Invalid email format EX.test@gmail.com"; //รูปแบบ email ไม่ถูกต้อง
     }
 
     // Email validation
     if (!_emailController.text.endsWith('@gmail.com')) {
-      return "Invalid email format"; //รูปแบบที่อยู่ไม่ถูกต้อง
+      return "Invalid email format EX.test@gmail.com"; //รูปแบบ email ไม่ถูกต้อง
     }
 
     // Check if there are characters before @gmail.com
     String email = _emailController.text;
     if (email.indexOf('@gmail.com') <= 0) {
-      return "Invalid email format"; // No characters before @gmail.com
+      return "Invalid email format EX.test@gmail.com"; // No characters before @gmail.com
     }
 
     // Check if passwords match
@@ -108,8 +108,18 @@ class _RegisteruserState extends State<Registeruser> {
   @override
   void initState() {
     super.initState();
-    _locationController.text =
-        "${_selectedLocation.latitude}, ${_selectedLocation.longitude}"; // Initial value
+    // ดึงตำแหน่งอัตโนมัติ
+    _determinePosition().then((position) {
+      setState(() {
+        _selectedLocation = LatLng(position.latitude, position.longitude);
+        _locationController.text =
+            "${position.latitude}, ${position.longitude}";
+        mapController.move(_selectedLocation,
+            mapController.camera.zoom); // ปรับตำแหน่งบนแผนที่
+      });
+    }).catchError((error) {
+      log("Error getting location: $error");
+    });
   }
 
   @override
@@ -310,22 +320,23 @@ class _RegisteruserState extends State<Registeruser> {
                 const SizedBox(height: 30),
                 // Map Display
                 SizedBox(
-                  height: 250, // Adjust the height as necessary
+                  height: 250, // ปรับขนาดตามต้องการ
                   child: FlutterMap(
                     mapController: mapController,
                     options: MapOptions(
                       initialCenter: _selectedLocation,
                       initialZoom: 15.0,
+                      minZoom: 5, // กำหนดค่า zoom ต่ำสุด
+                      maxZoom: 18, // กำหนดค่า zoom สูงสุด
                       onTap: (tapPosition, point) {
                         setState(() {
-                          _selectedLocation =
-                              point; // Update the selected location
+                          _selectedLocation = point; // อัปเดตพิกัดที่เลือก
                           _locationController.text =
-                              "${point.latitude}, ${point.longitude}"; // Update location controller
+                              "${point.latitude}, ${point.longitude}"; // อัปเดตในฟิลด์ตำแหน่ง
                           mapController.move(
                               point,
                               mapController.camera
-                                  .zoom); // Move the map to the selected location
+                                  .zoom); // ย้ายแผนที่ไปยังตำแหน่งที่เลือก
                         });
                         log('Selected Location: ${_selectedLocation.latitude}, ${_selectedLocation.longitude}');
                       },
@@ -394,7 +405,7 @@ class _RegisteruserState extends State<Registeruser> {
                             );
                           },
                         );
-                      } 
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.brown,
