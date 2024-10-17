@@ -1,3 +1,6 @@
+// ignore_for_file: non_constant_identifier_names, prefer_const_constructors, use_build_context_synchronously, depend_on_referenced_packages
+
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -6,6 +9,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:tultal/Page/Login.dart';
+import 'package:tultal/config/config.dart';
+import 'package:tultal/model/req/registerUser.dart';
 
 class Registeruser extends StatefulWidget {
   const Registeruser({super.key});
@@ -15,6 +22,8 @@ class Registeruser extends StatefulWidget {
 }
 
 class _RegisteruserState extends State<Registeruser> {
+  String server = '';
+
   File? _image;
   LatLng _selectedLocation =
       const LatLng(16.246825669508297, 103.25199289277295);
@@ -108,6 +117,14 @@ class _RegisteruserState extends State<Registeruser> {
   @override
   void initState() {
     super.initState();
+    Config.getConfig().then(
+      (value) {
+        log(value['serverAPI']); // แสดงค่าใน log สำหรับการ debug
+        setState(() {
+          server = value['serverAPI']; // อัปเดตค่า server
+        });
+      },
+    );
     // ดึงตำแหน่งอัตโนมัติ
     _determinePosition().then((position) {
       setState(() {
@@ -384,29 +401,30 @@ class _RegisteruserState extends State<Registeruser> {
                 // Register button
                 Center(
                   child: ElevatedButton(
-                    onPressed: () {
-                      String? validationMessage = _validateInputs();
-                      if (validationMessage != null) {
-                        // Show error dialog
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Error'),
-                              content: Text(validationMessage),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: const Text('OK'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      }
-                    },
+                    onPressed: () => Register(),
+                    //  () {
+                    // String? validationMessage = _validateInputs();
+                    // if (validationMessage != null) {
+                    //   // Show error dialog
+                    //   showDialog(
+                    //     context: context,
+                    //     builder: (BuildContext context) {
+                    //       return AlertDialog(
+                    //         title: const Text('Error'),
+                    //         content: Text(validationMessage),
+                    //         actions: <Widget>[
+                    //           TextButton(
+                    //             child: const Text('OK'),
+                    //             onPressed: () {
+                    //               Navigator.of(context).pop();
+                    //             },
+                    //           ),
+                    //         ],
+                    //       );
+                    //     },
+                    //   );
+                    // }
+                    // },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.brown,
                       minimumSize: const Size(200, 50),
@@ -426,5 +444,80 @@ class _RegisteruserState extends State<Registeruser> {
         ],
       ),
     );
+  }
+
+  void Register() {
+
+    var data = RegisterUser(
+        userName: _usernameController.text,
+        userEmail: _emailController.text,
+        userPassword: _passwordController.text,
+        userLocation: _confirmPasswordController.text,
+        userPhone: _phoneController.text,
+        userAddress: _addressController.text);
+
+    http
+        .post(
+      Uri.parse('$server/Register'),
+      headers: {"Content-Type": "application/json; charset=utf-8"},
+      body: registerUserToJson(data),
+    )
+        .then((response) {
+      if (response.statusCode == 200) {
+        // แปลงข้อความที่ได้จาก response.body ด้วย utf-8
+        var responseData = jsonDecode(utf8.decode(response.bodyBytes));
+        log('Register Success: ${responseData['message']}');
+
+        // แสดง dialog ว่าสมัครสำเร็จ
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Success'),
+              content: const Text('Registration successful!'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // ปิด dialog
+                    // ไปยังหน้า login หลังจากปิด dialog
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                    );
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        // แสดงข้อความข้อผิดพลาดจากเซิร์ฟเวอร์
+        var errorData = jsonDecode(utf8.decode(response.bodyBytes));
+        log('Failed to register. Error: ${response.statusCode} - ${errorData['message'] ?? 'No additional message'}');
+
+        // แสดง dialog ข้อผิดพลาด
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: Text(
+                  'Registration failed: ${errorData['message'] ?? 'Unknown error'}'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }).catchError((error) {
+      log('Connection error: $error');
+    });
   }
 }

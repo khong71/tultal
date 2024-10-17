@@ -1,8 +1,15 @@
+// ignore_for_file: non_constant_identifier_names
+
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Import the services package for input formatting
 import 'package:image_picker/image_picker.dart';
+import 'package:tultal/Page/Login.dart';
+import 'package:tultal/config/config.dart';
+import 'package:tultal/model/req/registerDriver.dart';
+import 'package:http/http.dart' as http;
 
 class Registerdriver extends StatefulWidget {
   const Registerdriver({super.key});
@@ -19,6 +26,22 @@ class _RegisterdriverState extends State<Registerdriver> {
   final _licensePlateController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _LocationController = TextEditingController();
+
+  String server = '';
+
+  @override
+  void initState() {
+    super.initState();
+    Config.getConfig().then(
+      (value) {
+        log(value['serverAPI']); // แสดงค่าใน log สำหรับการ debug
+        setState(() {
+          server = value['serverAPI']; // อัปเดตค่า server
+        });
+      },
+    );
+  }
 
   // Function to pick an image from the gallery or camera
   Future<void> _pickImage(ImageSource source) async { // Corrected from ImageSoqurce to ImageSource
@@ -268,36 +291,55 @@ class _RegisterdriverState extends State<Registerdriver> {
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                   ),
                 ),
+                const SizedBox(height: 20),
+                // Confirm password field
+                const Text('Location'),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _LocationController,
+                  obscureText: true,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.deny(RegExp(r'\s')) // Disallow spaces
+                  ],
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.7),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                  ),
+                ),
                 const SizedBox(height: 30),
                 // Register button
                 Center(
                   child: ElevatedButton(
-                    onPressed: () {
-                      String? validationMessage = _validateInputs();
-                      if (validationMessage != null) {
-                        // Show error dialog
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Error'),
-                              content: Text(validationMessage),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: const Text('OK'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      } else {
-                        // Add your registration logic here
-                        log("User registered successfully!");
-                      }
-                    },
+                    onPressed: () => Register(),
+                      // String? validationMessage = _validateInputs();
+                      // if (validationMessage != null) {
+                      //   // Show error dialog
+                      //   showDialog(
+                      //     context: context,
+                      //     builder: (BuildContext context) {
+                      //       return AlertDialog(
+                      //         title: const Text('Error'),
+                      //         content: Text(validationMessage),
+                      //         actions: <Widget>[
+                      //           TextButton(
+                      //             child: const Text('OK'),
+                      //             onPressed: () {
+                      //               Navigator.of(context).pop();
+                      //             },
+                      //           ),
+                      //         ],
+                      //       );
+                      //     },
+                      //   );
+                      // } else {
+                      //   // Add your registration logic here
+                      //   log("User registered successfully!");
+                      // }
+                    // },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.brown,
                       minimumSize: const Size(200, 50),
@@ -317,5 +359,83 @@ class _RegisterdriverState extends State<Registerdriver> {
         ],
       ),
     );
+  }
+
+  void Register(){
+
+
+    var data = RegisterDriver(
+        raiderName: _usernameController.text,
+        raiderEmail: _emailController.text,
+        raiderPhone: _phoneController.text,
+        // raiderImage: ,
+        raiderNumder: _licensePlateController.text,
+        raiderPassword: _passwordController.text,
+        raiderLocation: _LocationController.text
+        );
+    
+    http
+        .post(
+      Uri.parse('$server/RegisterDriver'),
+      headers: {"Content-Type": "application/json; charset=utf-8"},
+      body: registerDriverToJson(data),
+    )
+        .then((response) {
+      if (response.statusCode == 200) {
+        // แปลงข้อความที่ได้จาก response.body ด้วย utf-8
+        var responseData = jsonDecode(utf8.decode(response.bodyBytes));
+        log('Register Success: ${responseData['message']}');
+
+        // แสดง dialog ว่าสมัครสำเร็จ
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Success'),
+              content: const Text('Registration successful!'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // ปิด dialog
+                    // ไปยังหน้า login หลังจากปิด dialog
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                    );
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        // แสดงข้อความข้อผิดพลาดจากเซิร์ฟเวอร์
+        var errorData = jsonDecode(utf8.decode(response.bodyBytes));
+        log('Failed to register. Error: ${response.statusCode} - ${errorData['message'] ?? 'No additional message'}');
+
+        // แสดง dialog ข้อผิดพลาด
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: Text(
+                  'Registration failed: ${errorData['message'] ?? 'Unknown error'}'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }).catchError((error) {
+      log('Connection error: $error');
+    });
   }
 }
