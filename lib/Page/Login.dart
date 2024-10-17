@@ -1,6 +1,7 @@
-import 'dart:developer';
+// ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:tultal/Page/Homeraider.dart';
 import 'package:tultal/Page/Homeuser.dart';
 import 'package:tultal/Page/Registerdriver.dart';
@@ -17,6 +18,8 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   String? errorMessage;
+
+  final box = GetStorage(); // สร้าง instance ของ GetStorage
 
   @override
   Widget build(BuildContext context) {
@@ -134,25 +137,32 @@ class _LoginPageState extends State<LoginPage> {
   void signIn(BuildContext context) {
   final email = emailController.text.trim();
   final password = passwordController.text.trim();
+  final box = GetStorage(); // สร้าง instance ของ GetStorage ที่นี่
 
   // Example user validation
   if (email == '1' && password == '1') {
-    // Navigate to Homeuser page
+    // เมื่อผู้ใช้ล็อกอินสำเร็จ
+    box.write('isLoggedIn', true); // เก็บสถานะการล็อกอิน
+    box.write('userType', 'user'); // เก็บประเภทผู้ใช้เป็น 'user'
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const Homeuser()),
+      MaterialPageRoute(builder: (context) => Homeuser()), // ไปหน้า Homeuser
     );
-  } else if (email == '2' && password == '2'){
-// Navigate to Homeuser page
+  } else if (email == '2' && password == '2') {
+    // เมื่อผู้ใช้ล็อกอินสำเร็จ
+    box.write('isLoggedIn', true); // เก็บสถานะการล็อกอิน
+    box.write('userType', 'raider'); // เก็บประเภทผู้ใช้เป็น 'raider'
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const Homeraider()),
+      MaterialPageRoute(builder: (context) => Homeraider()), // ไปหน้า Homeraider
     );
-  }else {
-    // Show error message
+  } else {
+    // แสดงข้อความผิดพลาด
     setState(() {
       errorMessage = 'Invalid email or password';
     });
   }
 }
+
+
 }

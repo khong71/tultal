@@ -1,4 +1,7 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:tultal/Page/Login.dart';
 import 'package:tultal/Page/Profileraider.dart';
 import 'package:tultal/Page/work.dart';
@@ -11,34 +14,46 @@ class Homeraider extends StatefulWidget {
 }
 
 class _HomeraiderState extends State<Homeraider> {
+
+  String? username; // ตัวแปรสำหรับเก็บชื่อผู้ใช้
+
   Future<void> _showLogoutDialog() async {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('SingOut'),
-          content: const Text('Are you sure you want to logout?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
-                );
-              },
-              child: const Text('Ok'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); 
-              },
-              child: const Text('Cancle'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  return showDialog<void>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('SingOut'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              signOut(context); // เรียกฟังก์ชัน signOut เมื่อผู้ใช้กดตกลง
+            },
+            child: const Text('Ok'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // ปิด dialog เมื่อผู้ใช้กดยกเลิก
+            },
+            child: const Text('Cancel'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void signOut(BuildContext context) {
+  final box = GetStorage(); // สร้าง instance ของ GetStorage
+  box.remove('isLoggedIn'); // ลบสถานะการล็อกอิน
+
+  // นำทางกลับไปยังหน้า Login โดยใช้ pushReplacement เพื่อแทนที่หน้า Homeraider
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => LoginPage()),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
