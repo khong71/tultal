@@ -78,18 +78,18 @@ class _RegisteruserState extends State<Registeruser> {
     // Check if the first character of address is a space
     if (_addressController.text.isNotEmpty &&
         _addressController.text[0] == ' ') {
-      return "Invalid email format"; //รูปแบบที่อยู่ไม่ถูกต้อง
+      return "Invalid email format EX.test@gmail.com"; //รูปแบบ email ไม่ถูกต้อง
     }
 
     // Email validation
     if (!_emailController.text.endsWith('@gmail.com')) {
-      return "Invalid email format"; //รูปแบบที่อยู่ไม่ถูกต้อง
+      return "Invalid email format EX.test@gmail.com"; //รูปแบบ email ไม่ถูกต้อง
     }
 
     // Check if there are characters before @gmail.com
     String email = _emailController.text;
     if (email.indexOf('@gmail.com') <= 0) {
-      return "Invalid email format"; // No characters before @gmail.com
+      return "Invalid email format EX.test@gmail.com"; // No characters before @gmail.com
     }
 
     // Check if passwords match
