@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:tultal/Page/CheckStatus.dart';
+import 'package:tultal/Page/Login.dart';
 
 class Recipient {
   final String name;
@@ -133,14 +136,12 @@ class _SenderState extends State<Sender> {
             ),
             IconButton(
               icon: const Icon(Icons.all_inbox, color: Colors.black, size: 30),
-              onPressed: () {
-                // Navigate to CheckStatus page
-              },
+              onPressed: () => CheckStatu(),
             ),
             IconButton(
               icon: const Icon(Icons.exit_to_app, color: Colors.black, size: 30),
               onPressed: () {
-                // Handle sign out
+                _showSignOutConfirmationDialog(context);
               },
             ),
           ],
@@ -357,6 +358,48 @@ class _SenderState extends State<Sender> {
           ),
         ),
       ),
+    );
+  }
+  void CheckStatu() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => Checkstatus()),
+    );
+  }
+  void signOut(BuildContext context) {
+    final box = GetStorage(); // สร้าง instance ของ GetStorage
+    box.remove('isLoggedIn'); // ลบสถานะการล็อกอิน
+
+    // นำทางกลับไปยังหน้า Login
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
+  }
+  // ฟังก์ชันสำหรับแสดงกล่องยืนยันเมื่อผู้ใช้กดปุ่มออกจากระบบ
+  void _showSignOutConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('SingOut'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              signOut(context); // เรียกฟังก์ชัน signOut เมื่อผู้ใช้กดตกลง
+            },
+            child: const Text('Ok'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // ปิด dialog เมื่อผู้ใช้กดยกเลิก
+            },
+            child: const Text('Cancel'),
+          ),
+        ],
+        );
+      },
     );
   }
 }
