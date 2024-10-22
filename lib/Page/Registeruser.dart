@@ -23,13 +23,11 @@ class Registeruser extends StatefulWidget {
 
 class _RegisteruserState extends State<Registeruser> {
   String server = '';
-
   File? _image;
   LatLng _selectedLocation =
       const LatLng(16.246825669508297, 103.25199289277295);
   MapController mapController = MapController();
-  TextEditingController _locationController =
-      TextEditingController(); // Controller for location display
+  TextEditingController _locationController = TextEditingController(); // Controller for location display
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -52,9 +50,6 @@ class _RegisteruserState extends State<Registeruser> {
     bool serviceEnabled;
     LocationPermission permission;
 
-    
-
-    // Test if location services are enabled.
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       return Future.error('Location services are disabled.');
@@ -83,7 +78,7 @@ class _RegisteruserState extends State<Registeruser> {
         _addressController.text.isEmpty ||
         _passwordController.text.isEmpty ||
         _confirmPasswordController.text.isEmpty) {
-      return "Please fill in all fields."; //กรุณากรอกให้ครบทุกช่อง
+      return "Please fill in completely."; //กรุณากรอกให้ครบทุกช่อง
     }
 
     // Check if the first character of address is a space
@@ -295,15 +290,15 @@ class _RegisteruserState extends State<Registeruser> {
                   ),
                   inputFormatters: [
                     FilteringTextInputFormatter.deny(
-                        RegExp(r'^\s')), // Deny space at the beginning
+                        RegExp(r'\s')), // ไม่ให้มีช่องว่าง
                   ],
                 ),
                 const SizedBox(height: 20),
+                // Password field
                 const Text('Password'),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _passwordController,
-                  obscureText: true,
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Colors.white.withOpacity(0.7),
@@ -312,17 +307,14 @@ class _RegisteruserState extends State<Registeruser> {
                     ),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                   ),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.deny(
-                        RegExp(r'\s')), // Deny space
-                  ],
+                  obscureText: true, // Hide password input
                 ),
                 const SizedBox(height: 20),
+                // Confirm Password field
                 const Text('Confirm Password'),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _confirmPasswordController,
-                  obscureText: true,
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Colors.white.withOpacity(0.7),
@@ -331,12 +323,21 @@ class _RegisteruserState extends State<Registeruser> {
                     ),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                   ),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.deny(
-                        RegExp(r'\s')), // Deny space
-                  ],
+                  obscureText: true, // Hide password input
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
+                // Location field (hidden but can be used for backend)
+                TextField(
+                  controller: _locationController,
+                  decoration: const InputDecoration(
+                    labelText: 'Location',
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(),
+                  ),
+                  readOnly: true,
+                ),
+                const SizedBox(height: 20),
                 // Map Display
                 SizedBox(
                   height: 250, // ปรับขนาดตามต้องการ
@@ -384,59 +385,17 @@ class _RegisteruserState extends State<Registeruser> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // TextField to display selected location
-                const Text('Selected Location:'),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: _locationController,
-                  readOnly: true, // Make it read-only
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.7),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                  ),
-                ),
-                const SizedBox(height: 30),
                 // Register button
                 Center(
                   child: ElevatedButton(
-                    onPressed: () => Register(),
-                    //  () {
-                    // String? validationMessage = _validateInputs();
-                    // if (validationMessage != null) {
-                    //   // Show error dialog
-                    //   showDialog(
-                    //     context: context,
-                    //     builder: (BuildContext context) {
-                    //       return AlertDialog(
-                    //         title: const Text('Error'),
-                    //         content: Text(validationMessage),
-                    //         actions: <Widget>[
-                    //           TextButton(
-                    //             child: const Text('OK'),
-                    //             onPressed: () {
-                    //               Navigator.of(context).pop();
-                    //             },
-                    //           ),
-                    //         ],
-                    //       );
-                    //     },
-                    //   );
-                    // }
-                    // },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.brown,
-                      minimumSize: const Size(200, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                      backgroundColor: const Color.fromARGB(255, 145, 89, 57),
+                      
                     ),
+                    onPressed: Register,
                     child: const Text(
-                      'Register (user)',
-                      style: TextStyle(color: Colors.white),
+                      'Register(user)',
+                      style: TextStyle(color: Colors.white, fontSize: 15),
                     ),
                   ),
                 ),
@@ -449,14 +408,70 @@ class _RegisteruserState extends State<Registeruser> {
   }
 
   void Register() {
+    // Validate inputs before proceeding
+    String? validationMessage = _validateInputs();
+    if (validationMessage != null) {
+      // Show error dialog and return to keep the user on the same page
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: Text(validationMessage),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+              ),
+            ],
+          );
+        },
+      );
+      return; // Exit the method if validation fails
+    }
 
+    // Validate phone number length
+    if (_phoneController.text.length != 10) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Phone number is incomplete or has more than 10 digits.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Center(child: CircularProgressIndicator());
+      },
+    );
+
+    // Proceed with registration
     var data = RegisterUser(
-        userName: _usernameController.text,
-        userEmail: _emailController.text,
-        userPassword: _passwordController.text,
-        userLocation: _locationController.text,
-        userPhone: _phoneController.text,
-        userAddress: _addressController.text);
+      userName: _usernameController.text,
+      userEmail: _emailController.text,
+      userPassword: _passwordController.text,
+      userLocation: _locationController.text,
+      userPhone: _phoneController.text,
+      userAddress: _addressController.text,
+    );
 
     http
         .post(
@@ -465,24 +480,23 @@ class _RegisteruserState extends State<Registeruser> {
       body: registerUserToJson(data),
     )
         .then((response) {
+      Navigator.of(context).pop(); // Close loading dialog
       if (response.statusCode == 200) {
-        // แปลงข้อความที่ได้จาก response.body ด้วย utf-8
         var responseData = jsonDecode(utf8.decode(response.bodyBytes));
         log('Register Success: ${responseData['message']}');
 
-        // แสดง dialog ว่าสมัครสำเร็จ
+        // Show success dialog
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Success'),
-              content: const Text('Registration successful!'),
+              content: const Text('Successfully registered!'),
               actions: <Widget>[
                 TextButton(
                   child: const Text('OK'),
                   onPressed: () {
-                    Navigator.of(context).pop(); // ปิด dialog
-                    // ไปยังหน้า login หลังจากปิด dialog
+                    Navigator.of(context).pop(); // Close dialog
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (context) => LoginPage()),
@@ -494,23 +508,22 @@ class _RegisteruserState extends State<Registeruser> {
           },
         );
       } else {
-        // แสดงข้อความข้อผิดพลาดจากเซิร์ฟเวอร์
+        // Show error message if registration failed
         var errorData = jsonDecode(utf8.decode(response.bodyBytes));
         log('Failed to register. Error: ${response.statusCode} - ${errorData['message'] ?? 'No additional message'}');
 
-        // แสดง dialog ข้อผิดพลาด
+        // Show error dialog
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Error'),
-              content: Text(
-                  'Registration failed: ${errorData['message'] ?? 'Unknown error'}'),
+              content: Text('Failed to register: ${errorData['message'] ?? 'Unknown error'}'),
               actions: <Widget>[
                 TextButton(
                   child: const Text('OK'),
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(); // Close dialog
                   },
                 ),
               ],
@@ -519,7 +532,26 @@ class _RegisteruserState extends State<Registeruser> {
         );
       }
     }).catchError((error) {
+      Navigator.of(context).pop(); // Close loading dialog
       log('Connection error: $error');
+      // Show connection error dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Connection error, please try again later.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close dialog
+                },
+              ),
+            ],
+          );
+        },
+      );
     });
   }
 }

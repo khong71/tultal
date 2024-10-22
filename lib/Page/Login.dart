@@ -95,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 10),
                 Text(
                   errorMessage!,
-                  style: TextStyle(color: Colors.red),
+                  style: const TextStyle(color: Colors.red),
                 ),
               ],
               const SizedBox(height: 30),
@@ -204,7 +204,7 @@ class _LoginPageState extends State<LoginPage> {
     Navigator.pop(context); // ปิด popup กำลังโหลดในกรณีที่เกิดข้อผิดพลาด
     log('Login request failed: $error');
     // แสดง popup ข้อผิดพลาด
-    showErrorDialog(context, 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+    showErrorDialog(context, 'The username or password is incorrect.');
   }
 }
 
@@ -252,13 +252,13 @@ void signInRaider(BuildContext context) async {
     } else {
       log('Raider login failed');
       // แสดง popup ข้อผิดพลาด
-      showErrorDialog(context, 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+      showErrorDialog(context, 'The username or password is incorrect.');
     }
   } catch (error) {
     Navigator.pop(context); // ปิด popup กำลังโหลดในกรณีที่เกิดข้อผิดพลาด
     log('Raider login request failed: $error');
     // แสดง popup ข้อผิดพลาด
-    showErrorDialog(context, 'เกิดข้อผิดพลาดในการเชื่อมต่อ');
+    showErrorDialog(context, 'A connection error occurred.');
   }
 }
 
@@ -269,15 +269,15 @@ void showLoadingDialog(BuildContext context) {
     context: context,
     barrierDismissible: false, // ไม่ให้ผู้ใช้กดออกจาก popup ได้
     builder: (BuildContext context) {
-      return Dialog(
+      return const Dialog(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: EdgeInsets.all(20.0),
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            children: const [
+            children: [
               CircularProgressIndicator(),
               SizedBox(width: 20),
-              Text("กำลังโหลด..."),
+              Text("Loading..."),
             ],
           ),
         ),
@@ -292,7 +292,7 @@ void showErrorDialog(BuildContext context, String message) {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: const Text("เกิดข้อผิดพลาด"),
+        title: const Text("ERROR"),
         content: Text(message),
         actions: [
           TextButton(

@@ -26,7 +26,6 @@ class _RegisterdriverState extends State<Registerdriver> {
   final _licensePlateController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _LocationController = TextEditingController();
 
   String server = '';
 
@@ -44,7 +43,7 @@ class _RegisterdriverState extends State<Registerdriver> {
   }
 
   // Function to pick an image from the gallery or camera
-  Future<void> _pickImage(ImageSource source) async { // Corrected from ImageSoqurce to ImageSource
+  Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await ImagePicker().pickImage(source: source);
     if (pickedFile != null) {
       setState(() {
@@ -62,6 +61,11 @@ class _RegisterdriverState extends State<Registerdriver> {
         _passwordController.text.isEmpty ||
         _confirmPasswordController.text.isEmpty) {
       return "Please fill in all fields."; // Please fill in all fields
+    }
+
+    // Phone number validation
+    if (_phoneController.text.length != 10) {
+      return "Phone number is incomplete or has more than 10 digits."; // Phone number validation
     }
 
     // Email validation
@@ -87,9 +91,8 @@ class _RegisterdriverState extends State<Registerdriver> {
 
     // Validate license plate format
     String licensePlate = _licensePlateController.text;
-    if (!RegExp(r'^[ก-ฮA-Za-z]\d+$').hasMatch(licensePlate) &&
-        !RegExp(r'^[A-Za-z]\d+$').hasMatch(licensePlate)) {
-      return "License plate must start with a Thai or English letter followed by digits.";
+    if (!RegExp(r'^[ก-ฮA-Za-z]{1,3}\d{1,4}$').hasMatch(licensePlate)) {
+      return "License plate must start with 1 to 3 Thai or English letters followed by 1 to 4 digits.";
     }
 
     return null; // All validations passed
@@ -183,7 +186,8 @@ class _RegisterdriverState extends State<Registerdriver> {
                 TextField(
                   controller: _usernameController,
                   inputFormatters: [
-                    FilteringTextInputFormatter.deny(RegExp(r'\s')) // Disallow spaces
+                    FilteringTextInputFormatter.deny(
+                        RegExp(r'\s')) // Disallow spaces
                   ],
                   decoration: InputDecoration(
                     filled: true,
@@ -201,7 +205,8 @@ class _RegisterdriverState extends State<Registerdriver> {
                 TextField(
                   controller: _emailController,
                   inputFormatters: [
-                    FilteringTextInputFormatter.deny(RegExp(r'\s')) // Disallow spaces
+                    FilteringTextInputFormatter.deny(
+                        RegExp(r'\s')) // Disallow spaces
                   ],
                   decoration: InputDecoration(
                     filled: true,
@@ -218,10 +223,12 @@ class _RegisterdriverState extends State<Registerdriver> {
                 const SizedBox(height: 8),
                 TextField(
                   controller: _phoneController,
-                  keyboardType: TextInputType.number, // Set keyboard type to number
+                  keyboardType:
+                      TextInputType.number, // Set keyboard type to number
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly, // Allow only digits
-                    FilteringTextInputFormatter.deny(RegExp(r'\s')) // Disallow spaces
+                    FilteringTextInputFormatter.deny(
+                        RegExp(r'\s')) // Disallow spaces
                   ],
                   decoration: InputDecoration(
                     filled: true,
@@ -239,9 +246,11 @@ class _RegisterdriverState extends State<Registerdriver> {
                 TextField(
                   controller: _licensePlateController,
                   inputFormatters: [
-                    FilteringTextInputFormatter.deny(RegExp(r'\s')), // Disallow spaces
+                    FilteringTextInputFormatter.deny(
+                        RegExp(r'\s')), // Disallow spaces
                     FilteringTextInputFormatter.allow(
-                      RegExp(r'^[ก-ฮA-Za-z0-9]*$'), // Allow Thai letters, English letters, and digits
+                      RegExp(
+                          r'^[ก-ฮA-Za-z0-9]*$'), // Allow Thai letters, English letters, and digits
                     ),
                   ],
                   decoration: InputDecoration(
@@ -261,7 +270,8 @@ class _RegisterdriverState extends State<Registerdriver> {
                   controller: _passwordController,
                   obscureText: true,
                   inputFormatters: [
-                    FilteringTextInputFormatter.deny(RegExp(r'\s')) // Disallow spaces
+                    FilteringTextInputFormatter.deny(
+                        RegExp(r'\s')) // Disallow spaces
                   ],
                   decoration: InputDecoration(
                     filled: true,
@@ -280,26 +290,8 @@ class _RegisterdriverState extends State<Registerdriver> {
                   controller: _confirmPasswordController,
                   obscureText: true,
                   inputFormatters: [
-                    FilteringTextInputFormatter.deny(RegExp(r'\s')) // Disallow spaces
-                  ],
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.7),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // Confirm password field
-                const Text('Location'),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: _LocationController,
-                  obscureText: true,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.deny(RegExp(r'\s')) // Disallow spaces
+                    FilteringTextInputFormatter.deny(
+                        RegExp(r'\s')) // Disallow spaces
                   ],
                   decoration: InputDecoration(
                     filled: true,
@@ -314,32 +306,49 @@ class _RegisterdriverState extends State<Registerdriver> {
                 // Register button
                 Center(
                   child: ElevatedButton(
-                    onPressed: () => Register(),
-                      // String? validationMessage = _validateInputs();
-                      // if (validationMessage != null) {
-                      //   // Show error dialog
-                      //   showDialog(
-                      //     context: context,
-                      //     builder: (BuildContext context) {
-                      //       return AlertDialog(
-                      //         title: const Text('Error'),
-                      //         content: Text(validationMessage),
-                      //         actions: <Widget>[
-                      //           TextButton(
-                      //             child: const Text('OK'),
-                      //             onPressed: () {
-                      //               Navigator.of(context).pop();
-                      //             },
-                      //           ),
-                      //         ],
-                      //       );
-                      //     },
-                      //   );
-                      // } else {
-                      //   // Add your registration logic here
-                      //   log("User registered successfully!");
-                      // }
-                    // },
+                    onPressed: () async {
+                      String? validationMessage = _validateInputs();
+                      if (validationMessage != null) {
+                        // Show error dialog
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Error'),
+                              content: Text(validationMessage),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: const Text('OK'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      } else {
+                        // Show loading dialog
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (BuildContext context) {
+                            return const AlertDialog(
+                              content: Row(
+                                children: [
+                                  CircularProgressIndicator(),
+                                  SizedBox(width: 20),
+                                  Text("Loading..."),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+
+                        // Add your registration logic here
+                        await Register();
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.brown,
                       minimumSize: const Size(200, 50),
@@ -361,26 +370,26 @@ class _RegisterdriverState extends State<Registerdriver> {
     );
   }
 
-  void Register(){
-
-
+  Future<void> Register() async {
     var data = RegisterDriver(
         raiderName: _usernameController.text,
         raiderEmail: _emailController.text,
         raiderPhone: _phoneController.text,
-        // raiderImage: ,
+        // raiderImage: , // Add image upload logic if needed
         raiderNumder: _licensePlateController.text,
         raiderPassword: _passwordController.text,
-        raiderLocation: _LocationController.text
+        raiderLocation: "0,0" // Set location to (0,0)
         );
-    
-    http
-        .post(
-      Uri.parse('$server/RegisterDriver'),
-      headers: {"Content-Type": "application/json; charset=utf-8"},
-      body: registerDriverToJson(data),
-    )
-        .then((response) {
+
+    try {
+      var response = await http.post(
+        Uri.parse('$server/RegisterDriver'),
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+        body: registerDriverToJson(data),
+      );
+
+      Navigator.of(context).pop(); // Close loading dialog
+
       if (response.statusCode == 200) {
         // แปลงข้อความที่ได้จาก response.body ด้วย utf-8
         var responseData = jsonDecode(utf8.decode(response.bodyBytes));
@@ -401,7 +410,8 @@ class _RegisterdriverState extends State<Registerdriver> {
                     // ไปยังหน้า login หลังจากปิด dialog
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => LoginPage()),
+                      MaterialPageRoute(
+                          builder: (context) => const LoginPage()),
                     );
                   },
                 ),
@@ -434,8 +444,26 @@ class _RegisterdriverState extends State<Registerdriver> {
           },
         );
       }
-    }).catchError((error) {
+    } catch (error) {
       log('Connection error: $error');
-    });
+      Navigator.of(context).pop(); // Close loading dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Connection error. Please try again later.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 }
