@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class Changeraider extends StatefulWidget {
-  const Changeraider({super.key});
+  final int raiderId;
+  const Changeraider({super.key, required this.raiderId});
 
   @override
   State<Changeraider> createState() => _ChangeraiderState();
@@ -11,10 +12,12 @@ class Changeraider extends StatefulWidget {
 
 class _ChangeraiderState extends State<Changeraider> {
   File? _image; // To hold the selected image
-  final ImagePicker _picker = ImagePicker(); // Create an instance of ImagePicker
+  final ImagePicker _picker =
+      ImagePicker(); // Create an instance of ImagePicker
 
   Future<void> _pickImage(ImageSource source) async {
-    final pickedFile = await _picker.pickImage(source: source); // Updated to pickImage
+    final pickedFile =
+        await _picker.pickImage(source: source); // Updated to pickImage
 
     if (pickedFile != null) {
       setState(() {
@@ -47,6 +50,7 @@ class _ChangeraiderState extends State<Changeraider> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            Text('User ID: ${widget.raiderId}'),
             const SizedBox(height: 20),
             // Profile Image Selection
             Center(
@@ -115,7 +119,8 @@ class _ChangeraiderState extends State<Changeraider> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 10),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -128,7 +133,8 @@ class _ChangeraiderState extends State<Changeraider> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 10),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -141,12 +147,12 @@ class _ChangeraiderState extends State<Changeraider> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 10),
                       ),
                     ),
                   ],
                 ),
-                
               ),
             ),
             const SizedBox(height: 30),
@@ -156,7 +162,8 @@ class _ChangeraiderState extends State<Changeraider> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF5A3827), // Dark brown color
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),

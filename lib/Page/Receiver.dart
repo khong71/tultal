@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors, non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:tultal/Page/CheckStatus.dart';
@@ -5,7 +7,8 @@ import 'package:tultal/Page/Homeuser.dart';
 import 'package:tultal/Page/Login.dart';
 
 class Receiver extends StatefulWidget {
-  const Receiver({super.key});
+  final int userId;
+  const Receiver({super.key, required this.userId});
 
   @override
   State<Receiver> createState() => _ReceiverState();
@@ -36,8 +39,8 @@ class _ReceiverState extends State<Receiver> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => Homeuser(),
-                  ), // นำทางไปยังหน้า Homeuser
+                      builder: (context) => Homeuser(
+                          userId: widget.userId)), // นำทางไปยังหน้า Homeuser
                 );
               },
             ),
@@ -46,12 +49,14 @@ class _ReceiverState extends State<Receiver> {
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => Checkstatus()),
+                  MaterialPageRoute(
+                      builder: (context) => Checkstatus(userId: widget.userId)),
                 );
               },
             ),
             IconButton(
-              icon: const Icon(Icons.exit_to_app, color: Colors.black, size: 30),
+              icon:
+                  const Icon(Icons.exit_to_app, color: Colors.black, size: 30),
               onPressed: () => signOut(context),
             ),
           ],
@@ -62,6 +67,9 @@ class _ReceiverState extends State<Receiver> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              'User ID: ${widget.userId}',
+            ),
             Text('รายการที่รอรับของ', style: TextStyle(fontSize: 20)),
             Expanded(
               child: ListView.builder(
@@ -92,10 +100,12 @@ class _ReceiverState extends State<Receiver> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => Checkstatus()),
+                                  builder: (context) =>
+                                      Checkstatus(userId: widget.userId)),
                             );
                           },
-                          child: Text('เช็ค', style: TextStyle(color: Colors.white)),
+                          child: Text('เช็ค',
+                              style: TextStyle(color: Colors.white)),
                         ),
                       ),
                     ),
@@ -104,69 +114,6 @@ class _ReceiverState extends State<Receiver> {
               ),
             ),
           ],
-        ),
-      ),
-      body: Container(
-        color: const Color(0xFFDBC7A1), 
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16),
-              const Text(
-                'รายการที่รอรับของ',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: 2, // จำนวนผู้ส่งที่รอ
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: ListTile(
-                          leading: const CircleAvatar(
-                            backgroundImage:
-                                AssetImage('assets/image/logo.png'), // รูปโปรไฟล์
-                            radius: 25,
-                          ),
-                          title: const Text(
-                            'ผู้ส่ง',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                          subtitle: const Text('0811111111'),
-                          trailing: ElevatedButton(
-                            onPressed: () {
-                              // นำทางไปยังหน้า CheckStatus
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Checkstatus(),
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  Colors.brown, // Brown for the button
-                              foregroundColor: Colors.white, // White text
-                            ),
-                            child: const Text(
-                              'เช็ค',
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -178,6 +125,14 @@ class _ReceiverState extends State<Receiver> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => LoginPage()),
+    );
+  }
+
+  void CheckStatu() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+          builder: (context) => Checkstatus(userId: widget.userId)),
     );
   }
 }

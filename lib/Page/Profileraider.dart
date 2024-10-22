@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:tultal/Page/Changeraider.dart';
 
 class Profileraider extends StatefulWidget {
-  const Profileraider({super.key});
+  final int raiderId;
+  const Profileraider({super.key, required this.raiderId});
 
   @override
   State<Profileraider> createState() => _ProfileraiderState();
@@ -33,6 +34,7 @@ class _ProfileraiderState extends State<Profileraider> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            Text('User ID: ${widget.raiderId}'),
             const CircleAvatar(
               radius: 80,
               backgroundColor: Colors.grey,
@@ -95,7 +97,9 @@ class _ProfileraiderState extends State<Profileraider> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const Changeraider()),
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          Changeraider(raiderId: widget.raiderId)),
                 );
               },
               style: ElevatedButton.styleFrom(
