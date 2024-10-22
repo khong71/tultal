@@ -369,7 +369,7 @@ class _SenderState extends State<Sender> {
   void CheckStatu() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => Checkstatus()),
+      MaterialPageRoute(builder: (context) => Checkstatus(userId: widget.userId)),
     );
   }
   void signOut(BuildContext context) {
@@ -383,10 +383,4 @@ class _SenderState extends State<Sender> {
     );
   }
 
-  void CheckStatu() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => Checkstatus()),
-    );
-  }
 }
