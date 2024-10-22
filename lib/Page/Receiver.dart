@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:tultal/Page/CheckStatus.dart';
@@ -21,12 +19,12 @@ class _ReceiverState extends State<Receiver> {
       appBar: AppBar(
         backgroundColor: const Color(0xFFE2DBBF),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back), // ไอคอนย้อนกลับ
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pop(context); // กลับไปยังหน้าก่อนหน้า
+            Navigator.pop(context);
           },
         ),
-        title: Text('Receiver'), // ชื่อหน้าปัจจุบัน
+        title: const Text('Receiver', style: TextStyle(color: Colors.black)),
       ),
       bottomNavigationBar: BottomAppBar(
         color: const Color(0xFFE2DBBF),
@@ -34,11 +32,7 @@ class _ReceiverState extends State<Receiver> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
-              icon: const Column(
-                children: [
-                  Icon(Icons.home, color: Colors.black, size: 30),
-                ],
-              ),
+              icon: const Icon(Icons.home, color: Colors.black, size: 30),
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
@@ -49,20 +43,66 @@ class _ReceiverState extends State<Receiver> {
               },
             ),
             IconButton(
-              icon: const Column(
-                children: [
-                  Icon(Icons.all_inbox, color: Colors.black, size: 30),
-                ],
-              ),
-              onPressed: () => CheckStatu(),
+              icon: const Icon(Icons.all_inbox, color: Colors.black, size: 30),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Checkstatus()),
+                );
+              },
             ),
             IconButton(
-              icon: const Column(
-                children: [
-                  Icon(Icons.exit_to_app, color: Colors.black, size: 30),
-                ],
+              icon: const Icon(Icons.exit_to_app, color: Colors.black, size: 30),
+              onPressed: () => signOut(context),
+            ),
+          ],
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('รายการที่รอรับของ', style: TextStyle(fontSize: 20)),
+            Expanded(
+              child: ListView.builder(
+                itemCount: 2, // จำนวนรายการ
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundImage: AssetImage(
+                              'assets/image/logo.png'), // ใส่รูปภาพโปรไฟล์ที่นี่
+                          radius: 30,
+                        ),
+                        title: Text('ผู้ส่ง'),
+                        subtitle: Text('0811111111'),
+                        trailing: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF795548), // ปรับสีปุ่ม
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Checkstatus()),
+                            );
+                          },
+                          child: Text('เช็ค', style: TextStyle(color: Colors.white)),
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
-              onPressed: () => signOut(context), // ฟังก์ชัน signOut
             ),
           ],
         ),
@@ -76,10 +116,8 @@ class _ReceiverState extends State<Receiver> {
   }
 
   void signOut(BuildContext context) {
-    final box = GetStorage(); // สร้าง instance ของ GetStorage
-    box.remove('isLoggedIn'); // ลบสถานะการล็อกอิน
-
-    // นำทางกลับไปยังหน้า Login
+    final box = GetStorage();
+    box.remove('isLoggedIn');
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => LoginPage()),
