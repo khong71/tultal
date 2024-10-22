@@ -9,7 +9,8 @@ import 'package:tultal/Page/Receiver.dart';
 import 'package:tultal/Page/Sender.dart';
 
 class Homeuser extends StatefulWidget {
-  const Homeuser({super.key});
+  final int userId;
+  const Homeuser({super.key, required this.userId});
 
   @override
   State<Homeuser> createState() => _HomeuserState();
@@ -32,7 +33,7 @@ class _HomeuserState extends State<Homeuser> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const Profilepage()),
+                MaterialPageRoute(builder: (context) => Profilepage(userId: widget.userId)),
               );
             },
             child: Row(
@@ -40,12 +41,13 @@ class _HomeuserState extends State<Homeuser> {
                 ClipOval(
                   child: Image.asset(
                     'assets/image/logo.png', // Replace with your image path
-                    width: 30, // Adjust size as needed
+                    width: 30,
                     height: 30,
-                    fit: BoxFit.cover, // Ensures the image covers the circular area
+                    fit: BoxFit
+                        .cover, // Ensures the image covers the circular area
                   ),
                 ),
-                const SizedBox(width: 8), // Space between image and text
+                const SizedBox(width: 8),
                 const Text('User'),
               ],
             ),
@@ -149,46 +151,42 @@ class _HomeuserState extends State<Homeuser> {
           ),
         ),
         bottomNavigationBar: BottomAppBar(
-          color: const Color(0xFFE2DBBF),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: const Column(
-                  children: [
-                    Icon(Icons.home, color: Colors.black, size: 30),
-                  ],
-                ),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => Homeuser()),
-                  );
-                },
-              ),
-              IconButton(
-                icon: const Column(
-                  children: [
-                    Icon(Icons.all_inbox, color: Colors.black, size: 30),
-                  ],
-                ),
-                onPressed: () => CheckStatu(),
-              ),
-              IconButton(
-                icon: const Column(
-                  children: [
-                    Icon(Icons.exit_to_app, color: Colors.black, size: 30),
-                  ],
-                ),
-                onPressed: () {
-                  _showSignOutConfirmationDialog(context);
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+            color: const Color(0xFFE2DBBF),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Column(
+                      children: [
+                        Icon(Icons.home, color: Colors.black, size: 30),
+                      ],
+                    ),
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                Homeuser()), // นำทางไปยังหน้า Homeuser
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: const Column(
+                      children: [
+                        Icon(Icons.all_inbox, color: Colors.black, size: 30),
+                      ],
+                    ),
+                    onPressed: () => CheckStatu(),
+                  ),
+                  IconButton(
+                    icon: const Column(
+                      children: [
+                        Icon(Icons.exit_to_app, color: Colors.black, size: 30),
+                      ],
+                    ),
+                    onPressed: () => signOut(context),
+                  ),
+                ])));
   }
 
   void signOut(BuildContext context) {
@@ -205,7 +203,8 @@ class _HomeuserState extends State<Homeuser> {
   void CheckStatu() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => Checkstatus()),
+      MaterialPageRoute(
+          builder: (context) => Checkstatus(userId: widget.userId)),
     );
   }
 

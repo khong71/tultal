@@ -1,4 +1,7 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, depend_on_referenced_packages
+
+import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
@@ -6,6 +9,10 @@ import 'package:tultal/Page/Homeraider.dart';
 import 'package:tultal/Page/Homeuser.dart';
 import 'package:tultal/Page/Registerdriver.dart';
 import 'package:tultal/Page/Registeruser.dart';
+import 'package:tultal/config/config.dart';
+import 'package:http/http.dart' as http;
+import 'package:tultal/model/res/LoginRaider.dart';
+import 'package:tultal/model/res/getUser.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -20,6 +27,21 @@ class _LoginPageState extends State<LoginPage> {
   String? errorMessage;
 
   final box = GetStorage(); // สร้าง instance ของ GetStorage
+
+  String server = '';
+
+  @override
+  void initState() {
+    super.initState();
+    Config.getConfig().then(
+      (value) {
+        log(value['serverAPI']); // แสดงค่าใน log สำหรับการ debug
+        setState(() {
+          server = value['serverAPI']; // อัปเดตค่า server
+        });
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +112,8 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: const Text('Sign In', style: TextStyle(color: Colors.white)),
+                child: const Text('Sign In',
+                    style: TextStyle(color: Colors.white)),
               ),
               const SizedBox(height: 20),
               Row(
@@ -98,7 +121,8 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   TextButton(
                     onPressed: () => registerUser(context),
-                    child: const Text('Register', style: TextStyle(color: Colors.black)),
+                    child: const Text('Register',
+                        style: TextStyle(color: Colors.black)),
                   ),
                   ElevatedButton(
                     onPressed: () => registerDriver(context),
@@ -109,7 +133,8 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text('Apply for work', style: TextStyle(color: Colors.white)),
+                    child: const Text('Apply for work',
+                        style: TextStyle(color: Colors.white)),
                   ),
                 ],
               ),
@@ -126,43 +151,102 @@ class _LoginPageState extends State<LoginPage> {
       MaterialPageRoute(builder: (context) => const Registeruser()),
     );
   }
-  
+
   void registerDriver(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const Registerdriver()),
     );
   }
-  
+
   void signIn(BuildContext context) {
   final email = emailController.text.trim();
   final password = passwordController.text.trim();
   final box = GetStorage(); // สร้าง instance ของ GetStorage ที่นี่
 
-  // Example user validation
-  if (email == '1' && password == '1') {
-    // เมื่อผู้ใช้ล็อกอินสำเร็จ
-    box.write('isLoggedIn', true); // เก็บสถานะการล็อกอิน
-    box.write('userType', 'user'); // เก็บประเภทผู้ใช้เป็น 'user'
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => Homeuser()), // ไปหน้า Homeuser
-    );
-  } else if (email == '2' && password == '2') {
-    // เมื่อผู้ใช้ล็อกอินสำเร็จ
-    box.write('isLoggedIn', true); // เก็บสถานะการล็อกอิน
-    box.write('userType', 'raider'); // เก็บประเภทผู้ใช้เป็น 'raider'
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => Homeraider()), // ไปหน้า Homeraider
-    );
-  } else {
-    // แสดงข้อความผิดพลาด
-    setState(() {
-      errorMessage = 'Invalid email or password';
-    });
-  }
+  var data = GetUser(
+    userEmail: email,
+    userPassword: password,
+  );
+
+  http.post(
+    Uri.parse('$server/LoginUser'),
+    headers: {"Content-Type": "application/json; charset=utf-8"},
+    body: getUserToJson(data), // แปลงข้อมูลเป็น JSON ก่อนส่ง
+  ).then((response) {
+    if (response.statusCode == 200) {
+      log('Login successful');
+      
+      // ดึง userId จาก response
+      final responseData = jsonDecode(response.body);
+      final userId = responseData['user']['user_id']; // ตรวจสอบว่ามีคีย์นี้อยู่ใน response
+
+      log(response.body);
+      // เมื่อผู้ใช้ล็อกอินสำเร็จ
+      box.write('isLoggedIn', true); // เก็บสถานะการล็อกอิน
+      box.write('userType', 'user'); // เก็บประเภทผู้ใช้เป็น 'user'
+      
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Homeuser(userId: userId), // ส่ง userId ไปยัง Homeuser
+        ),
+      );
+    } else {
+      log('User login failed, attempting raider login...');
+      signInRaider(context);
+    }
+  }).catchError((error) {
+    log('Login request failed: $error');
+    // สามารถแสดงข้อความข้อผิดพลาดให้กับผู้ใช้ได้ที่นี่
+  });
 }
+
+
+void signInRaider(BuildContext context) {
+  final email = emailController.text.trim();
+  final password = passwordController.text.trim();
+  final box = GetStorage(); // สร้าง instance ของ GetStorage ที่นี่
+
+  var data = LoginRaider(
+    raiderEmail: email,
+    raiderPassword: password,
+  );
+
+  http.post(
+    Uri.parse('$server/LoginDriver'),
+    headers: {"Content-Type": "application/json; charset=utf-8"},
+    body: loginRaiderToJson(data), // แปลงข้อมูลเป็น JSON ก่อนส่ง
+  ).then((response) {
+    if (response.statusCode == 200) {
+      log('Raider login successful');
+      log(response.body);
+      
+      // ดึง raider_id จาก response
+      final responseData = jsonDecode(response.body);
+      final raiderId = responseData['driver']['raider_id']; // ตรวจสอบว่ามีคีย์นี้อยู่ใน response
+
+      // เมื่อผู้ใช้ล็อกอินสำเร็จ
+      box.write('isLoggedIn', true); // เก็บสถานะการล็อกอิน
+      box.write('userType', 'raider'); // เก็บประเภทผู้ใช้เป็น 'raider'
+
+      // ส่ง raiderId ไปยัง Homeraider
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Homeraider(raiderId: raiderId), // ส่ง raiderId
+        ),
+      );
+    } else {
+      log('Raider login failed');
+      // สามารถแสดงข้อความข้อผิดพลาดให้กับผู้ใช้ได้ที่นี่
+    }
+  }).catchError((error) {
+    log('Raider login request failed: $error');
+    // สามารถแสดงข้อความข้อผิดพลาดให้กับผู้ใช้ได้ที่นี่
+  });
+}
+
 
 
 }

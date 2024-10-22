@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:tultal/Page/ChangeProfile.dart';
 
 class Profilepage extends StatefulWidget {
-  const Profilepage({super.key});
+  final int userId;
+  const Profilepage({super.key, required this.userId});
 
   @override
   State<Profilepage> createState() => _ProfilepageState();
@@ -43,6 +44,7 @@ class _ProfilepageState extends State<Profilepage> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            Text('User ID: ${widget.userId}'),
             const CircleAvatar(
               radius: 80,
               backgroundColor: Colors.grey,
@@ -106,7 +108,8 @@ class _ProfilepageState extends State<Profilepage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const Changeprofile()),
+                      builder: (context) =>
+                          Changeprofile(userId: widget.userId)),
                 );
               },
               style: ElevatedButton.styleFrom(

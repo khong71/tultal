@@ -39,11 +39,13 @@ class MyApp extends StatelessWidget {
     final box = GetStorage(); // สร้าง instance ของ GetStorage
     bool isLoggedIn = box.read('isLoggedIn') ?? false; // อ่านสถานะล็อกอิน (ค่าเริ่มต้นคือ false ถ้าไม่มีการบันทึกค่า)
     String userType = box.read('userType') ?? ''; // ตรวจสอบประเภทของผู้ใช้ (user/raider)
+    int userId = box.read('userId') ?? 0; // อ่าน userId (ค่าเริ่มต้นคือ 0 ถ้าไม่มีการบันทึกค่า)
+    int raiderId = box.read('userId') ?? 0;
 
     return MaterialApp(
       title: 'Flutter Demo',
       home: isLoggedIn 
-          ? (userType == 'user' ? Homeuser() : Homeraider()) // ถ้าเป็น user ไปหน้า Homeuser ถ้าเป็น raider ไปหน้า Homeraider
+          ? (userType == 'user' ? Homeuser(userId: userId) : Homeraider(raiderId: raiderId)) // ถ้าเป็น user ไปหน้า Homeuser ถ้าเป็น raider ไปหน้า Homeraider
           : LoginPage(), // ถ้ายังไม่ล็อกอินให้ไปหน้า LoginPage
     );
   }

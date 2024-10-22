@@ -7,7 +7,8 @@ import 'package:tultal/Page/Homeuser.dart';
 import 'package:tultal/Page/Login.dart';
 
 class Receiver extends StatefulWidget {
-  const Receiver({super.key});
+  final int userId;
+  const Receiver({super.key, required this.userId});
 
   @override
   State<Receiver> createState() => _ReceiverState();
@@ -42,8 +43,8 @@ class _ReceiverState extends State<Receiver> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          Homeuser()), // นำทางไปยังหน้า Homeuser
+                      builder: (context) => Homeuser(
+                          userId: widget.userId)), // นำทางไปยังหน้า Homeuser
                 );
               },
             ),
@@ -67,7 +68,9 @@ class _ReceiverState extends State<Receiver> {
         ),
       ),
       body: Center(
-        child: Text('Your Page Content Here'), // เนื้อหาของหน้า
+        child: Text(
+          'User ID: ${widget.userId}',
+        ), // เนื้อหาของหน้า
       ),
     );
   }
@@ -86,7 +89,8 @@ class _ReceiverState extends State<Receiver> {
   void CheckStatu() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => Checkstatus()),
+      MaterialPageRoute(
+          builder: (context) => Checkstatus(userId: widget.userId)),
     );
   }
 }

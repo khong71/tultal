@@ -17,7 +17,8 @@ class Recipient {
 }
 
 class Sender extends StatefulWidget {
-  const Sender({super.key});
+  final int userId;
+  const Sender({super.key, required this.userId});
 
   @override
   State<Sender> createState() => _SenderState();
@@ -131,7 +132,12 @@ class _SenderState extends State<Sender> {
             IconButton(
               icon: const Icon(Icons.home, color: Colors.black, size: 30),
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          Homeuser()), // นำทางไปยังหน้า Homeuser
+                );
               },
             ),
             IconButton(
@@ -376,30 +382,11 @@ class _SenderState extends State<Sender> {
       MaterialPageRoute(builder: (context) => LoginPage()),
     );
   }
-  // ฟังก์ชันสำหรับแสดงกล่องยืนยันเมื่อผู้ใช้กดปุ่มออกจากระบบ
-  void _showSignOutConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('SingOut'),
-        content: const Text('Are you sure you want to logout?'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              signOut(context); // เรียกฟังก์ชัน signOut เมื่อผู้ใช้กดตกลง
-            },
-            child: const Text('Ok'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // ปิด dialog เมื่อผู้ใช้กดยกเลิก
-            },
-            child: const Text('Cancel'),
-          ),
-        ],
-        );
-      },
+
+  void CheckStatu() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => Checkstatus()),
     );
   }
 }
