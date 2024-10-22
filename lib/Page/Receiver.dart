@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:tultal/Page/CheckStatus.dart';
@@ -20,12 +18,12 @@ class _ReceiverState extends State<Receiver> {
       appBar: AppBar(
         backgroundColor: const Color(0xFFE2DBBF),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back), // ไอคอนย้อนกลับ
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pop(context); // กลับไปยังหน้าก่อนหน้า
           },
         ),
-        title: Text('Receiver'), // ชื่อหน้าปัจจุบัน
+        title: const Text('Receiver', style: TextStyle(color: Colors.black)),
       ),
       bottomNavigationBar: BottomAppBar(
         color: const Color(0xFFE2DBBF),
@@ -42,8 +40,8 @@ class _ReceiverState extends State<Receiver> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          Homeuser()), // นำทางไปยังหน้า Homeuser
+                    builder: (context) => Homeuser(),
+                  ), // นำทางไปยังหน้า Homeuser
                 );
               },
             ),
@@ -66,8 +64,68 @@ class _ReceiverState extends State<Receiver> {
           ],
         ),
       ),
-      body: Center(
-        child: Text('Your Page Content Here'), // เนื้อหาของหน้า
+      body: Container(
+        color: const Color(0xFFDBC7A1), 
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              const Text(
+                'รายการที่รอรับของ',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: 2, // จำนวนผู้ส่งที่รอ
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: ListTile(
+                          leading: const CircleAvatar(
+                            backgroundImage:
+                                AssetImage('assets/image/logo.png'), // รูปโปรไฟล์
+                            radius: 25,
+                          ),
+                          title: const Text(
+                            'ผู้ส่ง',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          subtitle: const Text('0811111111'),
+                          trailing: ElevatedButton(
+                            onPressed: () {
+                              // นำทางไปยังหน้า CheckStatus
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Checkstatus(),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Colors.brown, // Brown for the button
+                              foregroundColor: Colors.white, // White text
+                            ),
+                            child: const Text(
+                              'เช็ค',
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
