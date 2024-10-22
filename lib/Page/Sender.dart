@@ -7,7 +7,12 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:tultal/Page/CheckStatus.dart';
 import 'package:tultal/Page/Login.dart';
-import 'dart:developer'; // For logging search text
+import 'dart:developer';
+
+import 'package:tultal/config/config.dart';
+import 'package:tultal/model/res/getUsers.dart'; // For logging search text
+
+import 'package:http/http.dart' as http;
 
 class Recipient {
   final String name;
@@ -30,27 +35,35 @@ class _SenderState extends State<Sender> {
   final TextEditingController _descriptionController = TextEditingController();
   XFile? _imageFile;
   Recipient? selectedRecipient;
-  LatLng _selectedLocation = const LatLng(16.246825669508297, 103.25199289277295);
+  LatLng _selectedLocation =
+      const LatLng(16.246825669508297, 103.25199289277295);
   final MapController mapController = MapController();
 
-  final List<Recipient> recipients = [
-    Recipient('John Doe', '0800000000', 'assets/image/logo.png'),
-    Recipient('Jane Doe', '0800000001', 'assets/image/logo.png'),
-    Recipient('Alice', '0800000002', 'assets/image/logo.png'),
-    Recipient('Bob', '0800000003', 'assets/image/logo.png'),
-    Recipient('Jane Doe', '0800000004', 'assets/image/logo.png'),
-    Recipient('Alice', '0800000005', 'assets/image/logo.png'),
-    Recipient('Bob', '0800000006', 'assets/image/logo.png'),
-  ];
+  late List<GetUsers> users;
+  late Future<void> loadData;
+  String url = '';
+
+  List<Recipient> recipients = [];
 
   List<Recipient> filteredRecipients = [];
 
+  String server = '';
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_filterRecipients);
     filteredRecipients = recipients;
     _getCurrentLocation();
+
+    Config.getConfig().then(
+      (value) {
+        log(value['serverAPI']); // แสดงค่าใน log สำหรับการ debug
+        setState(() {
+          server = value['serverAPI']; // อัปเดตค่า server
+        });
+        loadDataAsync(); // เรียกใช้ฟังก์ชันโหลดข้อมูล
+      },
+    );
   }
 
   @override
@@ -85,7 +98,8 @@ class _SenderState extends State<Sender> {
   }
 
   Future<void> _getCurrentLocation() async {
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
     setState(() {
       _selectedLocation = LatLng(position.latitude, position.longitude);
       mapController.move(_selectedLocation, 15.0);
@@ -93,7 +107,8 @@ class _SenderState extends State<Sender> {
   }
 
   Future<void> _moveToCurrentLocation() async {
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
     setState(() {
       _selectedLocation = LatLng(position.latitude, position.longitude);
       mapController.move(_selectedLocation, 15.0);
@@ -130,7 +145,8 @@ class _SenderState extends State<Sender> {
               onPressed: () => CheckStatu(),
             ),
             IconButton(
-              icon: const Icon(Icons.exit_to_app, color: Colors.black, size: 30),
+              icon:
+                  const Icon(Icons.exit_to_app, color: Colors.black, size: 30),
               onPressed: () {
                 _showSignOutConfirmationDialog(context);
               },
@@ -160,7 +176,8 @@ class _SenderState extends State<Sender> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 10),
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
@@ -178,15 +195,17 @@ class _SenderState extends State<Sender> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: filteredRecipients.map((recipient) {
+                        // ใช้ filteredRecipients ที่ถูกกรอง
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundImage: AssetImage(recipient.image),
+                            backgroundImage: AssetImage(recipient
+                                .image), // ตรวจสอบให้แน่ใจว่าฟิลด์นี้มีข้อมูล
                           ),
-                          title: Text(recipient.name),
-                          subtitle: Text(recipient.phone),
+                          title: Text(recipient.name), // แสดงชื่อ
+                          subtitle: Text(recipient.phone), // แสดงเบอร์โทรศัพท์
                           onTap: () {
                             setState(() {
-                              selectedRecipient = recipient;
+                              selectedRecipient = recipient; // เลือก recipient
                             });
                           },
                         );
@@ -209,7 +228,8 @@ class _SenderState extends State<Sender> {
                           children: [
                             ListTile(
                               leading: CircleAvatar(
-                                backgroundImage: AssetImage(selectedRecipient!.image),
+                                backgroundImage:
+                                    AssetImage(selectedRecipient!.image),
                               ),
                               title: Text(selectedRecipient!.name),
                               subtitle: Text(selectedRecipient!.phone),
@@ -233,18 +253,24 @@ class _SenderState extends State<Sender> {
                                             child: Wrap(
                                               children: <Widget>[
                                                 ListTile(
-                                                  leading: const Icon(Icons.photo_library),
-                                                  title: const Text('Choose from gallery'),
+                                                  leading: const Icon(
+                                                      Icons.photo_library),
+                                                  title: const Text(
+                                                      'Choose from gallery'),
                                                   onTap: () {
-                                                    _pickImage(ImageSource.gallery);
+                                                    _pickImage(
+                                                        ImageSource.gallery);
                                                     Navigator.of(context).pop();
                                                   },
                                                 ),
                                                 ListTile(
-                                                  leading: const Icon(Icons.camera_alt),
-                                                  title: const Text('Take a picture'),
+                                                  leading: const Icon(
+                                                      Icons.camera_alt),
+                                                  title: const Text(
+                                                      'Take a picture'),
                                                   onTap: () {
-                                                    _pickImage(ImageSource.camera);
+                                                    _pickImage(
+                                                        ImageSource.camera);
                                                     Navigator.of(context).pop();
                                                   },
                                                 ),
@@ -256,7 +282,8 @@ class _SenderState extends State<Sender> {
                                     },
                                     child: Container(
                                       height: 150,
-                                      child: const Icon(Icons.camera_alt, size: 50, color: Colors.grey),
+                                      child: const Icon(Icons.camera_alt,
+                                          size: 50, color: Colors.grey),
                                     ),
                                   )
                                 : Image.file(
@@ -277,7 +304,8 @@ class _SenderState extends State<Sender> {
                             const SizedBox(height: 20),
                             const Text(
                               'Please select the point where the driver will pick up the item.',
-                              style: TextStyle(fontSize: 10, color: Colors.black),
+                              style:
+                                  TextStyle(fontSize: 10, color: Colors.black),
                             ),
                             const SizedBox(height: 10),
                             SizedBox(
@@ -292,13 +320,15 @@ class _SenderState extends State<Sender> {
                                       onTap: (tapPosition, point) {
                                         setState(() {
                                           _selectedLocation = point;
-                                          mapController.move(point, mapController.camera.zoom);
+                                          mapController.move(
+                                              point, mapController.camera.zoom);
                                         });
                                       },
                                     ),
                                     children: [
                                       TileLayer(
-                                        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                        urlTemplate:
+                                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                                         userAgentPackageName: 'com.example.app',
                                       ),
                                       MarkerLayer(
@@ -336,7 +366,8 @@ class _SenderState extends State<Sender> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.brown,
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 40, vertical: 10),
                                 ),
                                 onPressed: () {
                                   // Action for send button
@@ -374,15 +405,14 @@ class _SenderState extends State<Sender> {
             ),
             TextButton(
               child: const Text('Sign Out'),
-                onPressed: () => signOut(context),
-              
+              onPressed: () => signOut(context),
             ),
           ],
         );
       },
     );
   }
-  
+
   void CheckStatu() {
     Navigator.pushReplacement(
       context,
@@ -390,7 +420,7 @@ class _SenderState extends State<Sender> {
           builder: (context) => Checkstatus(userId: widget.userId)),
     );
   }
-  
+
   void signOut(BuildContext context) {
     final box = GetStorage(); // สร้าง instance ของ GetStorage
     box.remove('isLoggedIn'); // ลบสถานะการล็อกอิน
@@ -400,5 +430,27 @@ class _SenderState extends State<Sender> {
       context,
       MaterialPageRoute(builder: (context) => LoginPage()),
     );
+  }
+
+  Future<void> loadDataAsync() async {
+    var res = await http.get(Uri.parse('$server/GetUsers'));
+    log(res.body);
+
+    // แปลง JSON เป็น List<GetUsers>
+    users = getUsersFromJson(res.body);
+    log(users.length.toString());
+
+    // แปลง List<GetUsers> เป็น List<Recipient>
+    recipients = users.map((user) {
+      return Recipient(user.userName, user.userPhone,
+          user.userImage); // ตรวจสอบว่า user มีฟิลด์เหล่านี้
+    }).toList();
+
+    log('Total recipients: ${recipients.length}'); // แสดงจำนวน recipients ที่เพิ่มเข้ามา
+
+    // อัปเดต filteredRecipients หลังจากโหลดข้อมูล
+    setState(() {
+      filteredRecipients = recipients; // อัปเดตตัวกรอง recipients
+    });
   }
 }
