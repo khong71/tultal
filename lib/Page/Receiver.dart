@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors, non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:tultal/Page/CheckStatus.dart';
@@ -47,12 +49,14 @@ class _ReceiverState extends State<Receiver> {
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => Checkstatus()),
+                  MaterialPageRoute(
+                      builder: (context) => Checkstatus(userId: widget.userId)),
                 );
               },
             ),
             IconButton(
-              icon: const Icon(Icons.exit_to_app, color: Colors.black, size: 30),
+              icon:
+                  const Icon(Icons.exit_to_app, color: Colors.black, size: 30),
               onPressed: () => signOut(context),
             ),
           ],
@@ -63,6 +67,9 @@ class _ReceiverState extends State<Receiver> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              'User ID: ${widget.userId}',
+            ),
             Text('รายการที่รอรับของ', style: TextStyle(fontSize: 20)),
             Expanded(
               child: ListView.builder(
@@ -93,10 +100,12 @@ class _ReceiverState extends State<Receiver> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => Checkstatus()),
+                                  builder: (context) =>
+                                      Checkstatus(userId: widget.userId)),
                             );
                           },
-                          child: Text('เช็ค', style: TextStyle(color: Colors.white)),
+                          child: Text('เช็ค',
+                              style: TextStyle(color: Colors.white)),
                         ),
                       ),
                     ),
@@ -106,11 +115,6 @@ class _ReceiverState extends State<Receiver> {
             ),
           ],
         ),
-      ),
-      body: Center(
-        child: Text(
-          'User ID: ${widget.userId}',
-        ), // เนื้อหาของหน้า
       ),
     );
   }

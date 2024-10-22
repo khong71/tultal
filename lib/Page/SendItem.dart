@@ -5,7 +5,8 @@ import 'package:tultal/Page/Homeuser.dart';
 import 'package:tultal/Page/Login.dart';
 
 class Senditem extends StatefulWidget {
-  const Senditem({super.key});
+  final int userId;
+  const Senditem({super.key, required this.userId});
 
   @override
   State<Senditem> createState() => _SenditemState();
@@ -40,7 +41,7 @@ class _SenditemState extends State<Senditem> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => Homeuser(),
+                    builder: (context) => Homeuser(userId: widget.userId),
                   ), // นำทางไปยังหน้า Homeuser
                 );
               },
@@ -104,7 +105,7 @@ class _SenditemState extends State<Senditem> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => Checkstatus(),
+                                  builder: (context) => Checkstatus(userId: widget.userId),
                                 ),
                               );
                             },
@@ -144,7 +145,7 @@ class _SenditemState extends State<Senditem> {
   void CheckStatu() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => Checkstatus()),
+      MaterialPageRoute(builder: (context) => Checkstatus(userId: widget.userId)),
     );
   }
 }
