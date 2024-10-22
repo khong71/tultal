@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:tultal/Page/Homeuser.dart';
 
 class Checkstatus extends StatefulWidget {
-  const Checkstatus({super.key});
+  final int userId;
+  const Checkstatus({super.key, required this.userId});
 
   @override
   State<Checkstatus> createState() => _CheckstatusState();
@@ -22,8 +23,8 @@ class _CheckstatusState extends State<Checkstatus> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                  builder: (context) =>
-                      Homeuser()), // นำทางกลับไปยังหน้า Homeuser
+                  builder: (context) => Homeuser(
+                      userId: widget.userId)), // นำทางกลับไปยังหน้า Homeuser
             );
           },
         ),
@@ -31,8 +32,7 @@ class _CheckstatusState extends State<Checkstatus> {
       ),
       body: Center(
         child: Text(
-          'Check Status Page',
-          style: TextStyle(fontSize: 20),
+          'User ID: ${widget.userId}',
         ),
       ),
     );

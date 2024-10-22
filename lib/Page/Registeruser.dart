@@ -52,6 +52,8 @@ class _RegisteruserState extends State<Registeruser> {
     bool serviceEnabled;
     LocationPermission permission;
 
+    
+
     // Test if location services are enabled.
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
@@ -452,7 +454,7 @@ class _RegisteruserState extends State<Registeruser> {
         userName: _usernameController.text,
         userEmail: _emailController.text,
         userPassword: _passwordController.text,
-        userLocation: _confirmPasswordController.text,
+        userLocation: _locationController.text,
         userPhone: _phoneController.text,
         userAddress: _addressController.text);
 

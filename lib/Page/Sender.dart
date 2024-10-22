@@ -9,7 +9,8 @@ import 'package:tultal/Page/Homeuser.dart';
 import 'package:tultal/Page/Login.dart';
 
 class Sender extends StatefulWidget {
-  const Sender({super.key});
+  final int userId;
+  const Sender({super.key, required this.userId});
 
   @override
   State<Sender> createState() => _SenderState();
@@ -47,8 +48,8 @@ class _SenderState extends State<Sender> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          Homeuser()), // นำทางไปยังหน้า Homeuser
+                      builder: (context) => Homeuser(
+                          userId: widget.userId)), // นำทางไปยังหน้า Homeuser
                 );
               },
             ),
@@ -75,6 +76,7 @@ class _SenderState extends State<Sender> {
         color: const Color(0xFFDBC7A1),
         child: Column(
           children: [
+            Text('User ID: ${widget.userId}'),
             Padding(
               padding: const EdgeInsets.all(
                   20.0), // กำหนดค่า padding เป็น 20.0 สำหรับทุกด้าน
@@ -154,7 +156,8 @@ class _SenderState extends State<Sender> {
   void CheckStatu() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => Checkstatus()),
+      MaterialPageRoute(
+          builder: (context) => Checkstatus(userId: widget.userId)),
     );
   }
 }

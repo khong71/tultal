@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class Changeprofile extends StatefulWidget {
-  const Changeprofile({super.key});
+  final int userId;
+  const Changeprofile({super.key, required this.userId});
 
   @override
   State<Changeprofile> createState() => _ChangeprofileState();
@@ -60,6 +61,7 @@ class _ChangeprofileState extends State<Changeprofile> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            Text('User ID: ${widget.userId}'),
             const SizedBox(height: 20),
             // Profile Image Selection
             Center(

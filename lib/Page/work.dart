@@ -9,7 +9,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:tultal/Page/Homeraider.dart';
 
 class Work extends StatefulWidget {
-  const Work({super.key});
+  final int raiderId;
+  const Work({super.key, required this.raiderId});
 
   @override
   State<Work> createState() => _WorkState();
@@ -289,7 +290,7 @@ Widget build(BuildContext context) {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const Homeraider()),
+                                    builder: (context) => Homeraider(raiderId: widget.raiderId)),
                               );
                             },
                             child: const Text('Ok'),

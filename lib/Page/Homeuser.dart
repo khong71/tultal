@@ -9,7 +9,8 @@ import 'package:tultal/Page/Receiver.dart';
 import 'package:tultal/Page/Sender.dart';
 
 class Homeuser extends StatefulWidget {
-  const Homeuser({super.key});
+  final int userId;
+  const Homeuser({super.key, required this.userId});
 
   @override
   State<Homeuser> createState() => _HomeuserState();
@@ -27,7 +28,7 @@ class _HomeuserState extends State<Homeuser> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const Profilepage()),
+                MaterialPageRoute(builder: (context) => Profilepage(userId: widget.userId)),
               );
             },
             child: Row(
@@ -35,13 +36,12 @@ class _HomeuserState extends State<Homeuser> {
                 ClipOval(
                   child: Image.asset(
                     'assets/image/logo.png', // Replace with your image path
-                    width: 30, // Adjust size as needed
+                    width: 30,
                     height: 30,
-                    fit: BoxFit
-                        .cover, // Ensures the image covers the circular area
+                    fit: BoxFit.cover,
                   ),
                 ),
-                const SizedBox(width: 8), // Space between image and text
+                const SizedBox(width: 8),
                 const Text('User'),
               ],
             ),
@@ -52,31 +52,31 @@ class _HomeuserState extends State<Homeuser> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Text(
+                  'User ID: ${widget.userId}'), // ใช้ widget.userId เพื่อเข้าถึง userId
               InkWell(
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const Sender()),
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            Sender(userId: widget.userId)), // ส่ง userId
                   );
                 },
                 child: Card(
                   color: const Color(0xFFC2B195),
-                  elevation: 20, // ระดับความสูงของเงา
+                  elevation: 20,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15), // มุมโค้งของการ์ด
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(
-                        20.0), // ปรับขนาด padding ให้เหมาะสม
+                    padding: const EdgeInsets.all(20.0),
                     child: Row(
-                      mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween, // จัดเรียงแบบซ้าย-ขวา
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Column(
-                          mainAxisSize: MainAxisSize
-                              .min, // ขนาดของคอลัมน์จะเป็นไปตามเนื้อหา
-                          crossAxisAlignment: CrossAxisAlignment
-                              .start, // จัดเรียงข้อความไปทางซ้าย
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('ส่งของ',
                                 style: TextStyle(
@@ -84,43 +84,41 @@ class _HomeuserState extends State<Homeuser> {
                             SizedBox(height: 10),
                           ],
                         ),
-                        // ตัวอย่างรูปภาพ
                         Image.asset(
-                          'assets/image/black-turtle.png', // แทนที่ด้วยที่อยู่ของรูปภาพที่ต้องการ
-                          width: 50, // กำหนดความกว้างของรูปภาพ
-                          height: 150, // กำหนดความสูงของรูปภาพ
+                          'assets/image/black-turtle.png',
+                          width: 50,
+                          height: 150,
                         ),
                       ],
                     ),
                   ),
                 ),
               ),
-              SizedBox(height: 50), // ระยะห่างระหว่างการ์ด
+              SizedBox(height: 50),
               InkWell(
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const Receiver()),
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          Receiver(userId: widget.userId), // ส่ง userId
+                    ),
                   );
                 },
                 child: Card(
                   color: const Color(0xFFC2B195),
-                  elevation: 20, // ระดับความสูงของเงา
+                  elevation: 20,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15), // มุมโค้งของการ์ด
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(
-                        20.0), // ปรับขนาด padding ให้เหมาะสม
+                    padding: const EdgeInsets.all(20.0),
                     child: Row(
-                      mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween, // จัดเรียงแบบซ้าย-ขวา
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Column(
-                          mainAxisSize: MainAxisSize
-                              .min, // ขนาดของคอลัมน์จะเป็นไปตามเนื้อหา
-                          crossAxisAlignment: CrossAxisAlignment
-                              .start, // จัดเรียงข้อความไปทางซ้าย
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('รับของ',
                                 style: TextStyle(
@@ -128,11 +126,10 @@ class _HomeuserState extends State<Homeuser> {
                             SizedBox(height: 10),
                           ],
                         ),
-                        // ตัวอย่างรูปภาพ
                         Image.asset(
-                          'assets/image/box.jpg', // แทนที่ด้วยที่อยู่ของรูปภาพที่ต้องการ
-                          width: 50, // กำหนดความกว้างของรูปภาพ
-                          height: 150, // กำหนดความสูงของรูปภาพ
+                          'assets/image/box.jpg',
+                          width: 50,
+                          height: 150,
                         ),
                       ],
                     ),
@@ -158,7 +155,7 @@ class _HomeuserState extends State<Homeuser> {
                         context,
                         MaterialPageRoute(
                             builder: (context) =>
-                                Homeuser()), // นำทางไปยังหน้า Homeuser
+                                Homeuser(userId: widget.userId)), // ส่ง userId
                       );
                     },
                   ),
@@ -195,7 +192,8 @@ class _HomeuserState extends State<Homeuser> {
   void CheckStatu() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => Checkstatus()),
+      MaterialPageRoute(
+          builder: (context) => Checkstatus(userId: widget.userId)),
     );
   }
 }
