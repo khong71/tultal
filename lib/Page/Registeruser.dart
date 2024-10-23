@@ -24,19 +24,74 @@ class Registeruser extends StatefulWidget {
 
 class _RegisteruserState extends State<Registeruser> {
   String server = '';
-  XFile? image;
-  String imgUrl = '';
+  File? _image;
+  late RegisterUser data;
   LatLng _selectedLocation =
       const LatLng(16.246825669508297, 103.25199289277295);
   MapController mapController = MapController();
-  TextEditingController _locationController =
-      TextEditingController(); // Controller for location display
+  final TextEditingController _locationController = TextEditingController(); // Controller for location display
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+
+  Future<void> _pickImage(ImageSource source) async {
+  final pickedFile = await ImagePicker().pickImage(source: source);
+  if (pickedFile != null) {
+    setState(() {
+      _image = File(pickedFile.path);
+    });
+    log('Image selected: ${_image!.path}');
+    await _uploadImageToFirebase();
+  } else {
+    log('No image selected');
+  }
+}
+
+Future<void> _uploadImageToFirebase() async {
+  if (_image == null) {
+    log('No image to upload');
+    return;
+  }
+
+  String imagePath = 'user_images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+  try {
+    final storageRef = FirebaseStorage.instance.ref().child(imagePath);
+    log('Uploading image to $imagePath');
+    final uploadTask = storageRef.putFile(_image!);
+    await uploadTask;
+    
+    String imageUrl = await storageRef.getDownloadURL();
+    setState(() {
+      data.userImage = imageUrl; // Set the image URL in your data object
+    });
+
+    log('Image uploaded successfully: $imageUrl');
+  } catch (e) {
+    log('Error uploading image: $e');
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text('Failed to upload image: $e'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+
 
   // Function to determine the current position
   Future<Position> _determinePosition() async {
@@ -97,7 +152,7 @@ class _RegisteruserState extends State<Registeruser> {
     }
 
     // Check if image is selected
-    if (image == null) {
+    if (_image == null) {
       return "Please select a picture."; //กรุณาเลือกรูปภาพ
     }
 
@@ -167,57 +222,22 @@ class _RegisteruserState extends State<Registeruser> {
                         builder: (BuildContext context) {
                           return SafeArea(
                             child: Wrap(
-                              children: [
-                                Column(
-                                  children: [
-                                    FilledButton(
-                                      onPressed: () async {
-                                        final ImagePicker picker =
-                                            ImagePicker();
-                                        image = await picker.pickImage(
-                                            source: ImageSource.gallery);
-                                        log('Pressed');
-
-                                        if (image != null &&
-                                            image!.path.isNotEmpty) {
-                                          log('Image selected: ${image!.path}');
-                                          imgUrl = await uploadImage(image!);
-                                          if (imgUrl.isNotEmpty) {
-                                            log('Image uploaded successfully: $imgUrl');
-                                            setState(() {});
-                                          } else {
-                                            log('Image upload failed.');
-                                          }
-                                        } else {
-                                          log('No image selected or invalid image path.');
-                                        }
-
-                                        Navigator.of(context)
-                                            .pop(); // Close modal
-                                      },
-
-                                      child: Text(
-                                          'Select from Gallery'), // ข้อความในปุ่ม
-                                    ),
-                                    // หากต้องการเพิ่มตัวเลือกการถ่ายภาพด้วยกล้อง
-                                    // ListTile(
-                                    //   leading: const Icon(Icons.camera_alt),
-                                    //   title: const Text('Take a picture'),
-                                    //   onTap: () async {
-                                    //     final ImagePicker picker = ImagePicker();
-                                    //     image = await picker.pickImage(source: ImageSource.camera);
-                                    //     if (image != null) {
-                                    //       log(image!.path);
-                                    //       imgUrl = await uploadimg(image!);
-                                    //       log(imgUrl);
-                                    //       setState(() {});
-                                    //     } else {
-                                    //       log('No image taken.');
-                                    //     }
-                                    //     Navigator.of(context).pop();
-                                    //   },
-                                    // ),
-                                  ],
+                              children: <Widget>[
+                                ListTile(
+                                  leading: const Icon(Icons.photo_library),
+                                  title: const Text('Choose from gallery'),
+                                  onTap: () {
+                                    _pickImage(ImageSource.gallery);
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                ListTile(
+                                  leading: const Icon(Icons.camera_alt),
+                                  title: const Text('Take a picture'),
+                                  onTap: () {
+                                    _pickImage(ImageSource.camera);
+                                    Navigator.of(context).pop();
+                                  },
                                 ),
                               ],
                             ),
@@ -228,10 +248,10 @@ class _RegisteruserState extends State<Registeruser> {
                     child: CircleAvatar(
                       radius: 60,
                       backgroundColor: const Color.fromARGB(255, 173, 173, 173),
-                      child: image != null
+                      child: _image != null
                           ? ClipOval(
                               child: Image.file(
-                                File(imgUrl), // ใช้ imgUrl ที่ได้จากการอัปโหลด
+                                _image!,
                                 width: 120,
                                 height: 120,
                                 fit: BoxFit.cover,
@@ -245,7 +265,6 @@ class _RegisteruserState extends State<Registeruser> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 20),
                 // Username field
                 const Text('Username'),
@@ -419,6 +438,7 @@ class _RegisteruserState extends State<Registeruser> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 145, 89, 57),
+                      
                     ),
                     onPressed: Register,
                     child: const Text(
@@ -436,142 +456,125 @@ class _RegisteruserState extends State<Registeruser> {
   }
 
   void Register() {
-    // Validate inputs before proceeding
-    String? validationMessage = _validateInputs();
-    if (validationMessage != null) {
-      // Show error dialog and return to keep the user on the same page
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Error'),
-            content: Text(validationMessage),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-              ),
-            ],
-          );
-        },
-      );
-      return; // Exit the method if validation fails
-    }
-
-    // Validate phone number length
-    if (_phoneController.text.length != 10) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Error'),
-            content: const Text(
-                'Phone number is incomplete or has more than 10 digits.'),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-              ),
-            ],
-          );
-        },
-      );
-      return;
-    }
-
-    // Show loading dialog
+  // Validate inputs before proceeding
+  String? validationMessage = _validateInputs();
+  if (validationMessage != null) {
+    // Show error dialog and return to keep the user on the same page
     showDialog(
       context: context,
-      barrierDismissible: false,
       builder: (BuildContext context) {
-        return Center(child: CircularProgressIndicator());
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(validationMessage),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+          ],
+        );
       },
     );
+    return; // Exit the method if validation fails
+  }
 
-    // Proceed with registration
-    var data = RegisterUser(
-      userName: _usernameController.text,
-      userEmail: _emailController.text,
-      userPassword: _passwordController.text,
-      userLocation: _locationController.text,
-      userImage: '_image',
-      userPhone: _phoneController.text,
-      userAddress: _addressController.text,
+  // Validate phone number length
+  if (_phoneController.text.length != 10) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: const Text('Phone number is incomplete or has more than 10 digits.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+          ],
+        );
+      },
     );
+    return;
+  }
 
-    http
-        .post(
-      Uri.parse('$server/Register'),
-      headers: {"Content-Type": "application/json; charset=utf-8"},
-      body: registerUserToJson(data),
-    )
-        .then((response) {
-      Navigator.of(context).pop(); // Close loading dialog
-      if (response.statusCode == 200) {
-        var responseData = jsonDecode(utf8.decode(response.bodyBytes));
-        log('Register Success: ${responseData['message']}');
+  // Show loading dialog
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return Center(child: CircularProgressIndicator());
+    },
+  );
 
-        // Show success dialog
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Success'),
-              content: const Text('Successfully registered!'),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('OK'),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close dialog
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginPage()),
-                    );
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      } else {
-        // Show error message if registration failed
-        var errorData = jsonDecode(utf8.decode(response.bodyBytes));
-        log('Failed to register. Error: ${response.statusCode} - ${errorData['message'] ?? 'No additional message'}');
+  // Declare and initialize data before using it
+  var data = RegisterUser(
+    userName: _usernameController.text,
+    userEmail: _emailController.text,
+    userPassword: _passwordController.text,
+    userLocation: _locationController.text,
+    userPhone: _phoneController.text,
+    userAddress: _addressController.text,
+    userImage: '', // Initialize with an empty string or default value
+  );
 
-        // Show error dialog
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Error'),
-              content: Text(
-                  'Failed to register: ${errorData['message'] ?? 'Unknown error'}'),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('OK'),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close dialog
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      }
-    }).catchError((error) {
-      Navigator.of(context).pop(); // Close loading dialog
-      log('Connection error: $error');
-      // Show connection error dialog
+  // Check if image URL is available and set it
+  if (_image != null) {
+    // Assuming the image has already been uploaded and you have the URL
+    // If you haven't uploaded it in the same flow, make sure to upload it before this point
+    data.userImage = _image != null ? data.userImage : ''; // Set image URL if available
+  }
+
+  http
+      .post(
+    Uri.parse('$server/Register'),
+    headers: {"Content-Type": "application/json; charset=utf-8"},
+    body: registerUserToJson(data),
+  )
+      .then((response) {
+    Navigator.of(context).pop(); // Close loading dialog
+    if (response.statusCode == 200) {
+      var responseData = jsonDecode(utf8.decode(response.bodyBytes));
+      log('Register Success: ${responseData['message']}');
+
+      // Show success dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Success'),
+            content: const Text('Successfully registered!'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close dialog
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                  );
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      // Show error message if registration failed
+      var errorData = jsonDecode(utf8.decode(response.bodyBytes));
+      log('Failed to register. Error: ${response.statusCode} - ${errorData['message'] ?? 'No additional message'}');
+
+      // Show error dialog
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Error'),
-            content: const Text('Connection error, please try again later.'),
+            content: Text('Failed to register: ${errorData['message'] ?? 'Unknown error'}'),
             actions: <Widget>[
               TextButton(
                 child: const Text('OK'),
@@ -583,21 +586,29 @@ class _RegisteruserState extends State<Registeruser> {
           );
         },
       );
-    });
-  }
+    }
+  }).catchError((error) {
+    Navigator.of(context).pop(); // Close loading dialog
+    log('Connection error: $error');
+    // Show connection error dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: const Text('Connection error, please try again later.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
+  });
+}
 
-  Future<String> uploadImage(XFile image) async {
-    // สร้าง Reference สำหรับ Firebase Storage
-    final storageRef = FirebaseStorage.instance.ref();
-
-    // สร้าง path สำหรับเก็บรูปภาพ
-    final imageRef = storageRef.child('gg/${image.name}');
-
-    // อัปโหลดรูปภาพ
-    await imageRef.putFile(File(image.path));
-
-    // รับ URL ของรูปภาพที่ถูกอัปโหลด
-    String downloadURL = await imageRef.getDownloadURL();
-    return downloadURL;
-  }
 }
