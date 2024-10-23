@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
@@ -476,16 +475,16 @@ class _SenderState extends State<Sender> {
       String downloadUrl = await snapshot.ref.getDownloadURL();
 
       // บันทึก URL ลง Firestore
-      await FirebaseFirestore.instance
-          .collection('your_collection_name') // เปลี่ยนชื่อที่นี่
-          .add({
-        'imageUrl': downloadUrl,
-        'description': _descriptionController.text,
-        'location': GeoPoint(
-          _selectedLocation.latitude,
-          _selectedLocation.longitude,
-        ),
-      });
+      // await FirebaseFirestore.instance
+      //     .collection('your_collection_name') // เปลี่ยนชื่อที่นี่
+      //     .add({
+      //   'imageUrl': downloadUrl,
+      //   'description': _descriptionController.text,
+      //   'location': GeoPoint(
+      //     _selectedLocation.latitude,
+      //     _selectedLocation.longitude,
+      //   ),
+      // });
 
       // แสดงข้อความสำเร็จ
       ScaffoldMessenger.of(context).showSnackBar(
