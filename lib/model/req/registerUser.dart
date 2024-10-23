@@ -13,7 +13,7 @@ class RegisterUser {
     String userEmail;
     String userPassword;
     String userLocation;
-    // String userImage;
+    String userImage;
     String userPhone;
     String userAddress;
 
@@ -22,7 +22,7 @@ class RegisterUser {
         required this.userEmail,
         required this.userPassword,
         required this.userLocation,
-        // required this.userImage,
+        required this.userImage,
         required this.userPhone,
         required this.userAddress,
     });
@@ -32,7 +32,7 @@ class RegisterUser {
         userEmail: json["user_email"],
         userPassword: json["user_password"],
         userLocation: json["user_location"],
-        // userImage: json["user_image"],
+        userImage: json["user_image"],
         userPhone: json["user_phone"],
         userAddress: json["user_address"],
     );
@@ -42,7 +42,7 @@ class RegisterUser {
         "user_email": userEmail,
         "user_password": userPassword,
         "user_location": userLocation,
-        // "user_image": userImage,
+        "user_image": userImage,
         "user_phone": userPhone,
         "user_address": userAddress,
     };

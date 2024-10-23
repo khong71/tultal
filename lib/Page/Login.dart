@@ -1,16 +1,13 @@
-// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, depend_on_referenced_packages
-
+import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:developer';
-
-import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as http;
 import 'package:tultal/Page/Homeraider.dart';
 import 'package:tultal/Page/Homeuser.dart';
 import 'package:tultal/Page/Registerdriver.dart';
 import 'package:tultal/Page/Registeruser.dart';
 import 'package:tultal/config/config.dart';
-import 'package:http/http.dart' as http;
 import 'package:tultal/model/res/LoginRaider.dart';
 import 'package:tultal/model/res/getUser.dart';
 
@@ -98,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 10),
                 Text(
                   errorMessage!,
-                  style: TextStyle(color: Colors.red),
+                  style: const TextStyle(color: Colors.red),
                 ),
               ],
               const SizedBox(height: 30),
@@ -159,7 +156,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void signIn(BuildContext context) {
+  void signIn(BuildContext context) async {
   final email = emailController.text.trim();
   final password = passwordController.text.trim();
   final box = GetStorage(); // สร้าง instance ของ GetStorage ที่นี่
@@ -169,11 +166,18 @@ class _LoginPageState extends State<LoginPage> {
     userPassword: password,
   );
 
-  http.post(
-    Uri.parse('$server/LoginUser'),
-    headers: {"Content-Type": "application/json; charset=utf-8"},
-    body: getUserToJson(data), // แปลงข้อมูลเป็น JSON ก่อนส่ง
-  ).then((response) {
+  // แสดง popup กำลังโหลด
+  showLoadingDialog(context);
+
+  try {
+    final response = await http.post(
+      Uri.parse('$server/LoginUser'),
+      headers: {"Content-Type": "application/json; charset=utf-8"},
+      body: getUserToJson(data), // แปลงข้อมูลเป็น JSON ก่อนส่ง
+    );
+
+    Navigator.pop(context); // ปิด popup กำลังโหลด
+
     if (response.statusCode == 200) {
       log('Login successful');
       
@@ -196,14 +200,15 @@ class _LoginPageState extends State<LoginPage> {
       log('User login failed, attempting raider login...');
       signInRaider(context);
     }
-  }).catchError((error) {
+  } catch (error) {
+    Navigator.pop(context); // ปิด popup กำลังโหลดในกรณีที่เกิดข้อผิดพลาด
     log('Login request failed: $error');
-    // สามารถแสดงข้อความข้อผิดพลาดให้กับผู้ใช้ได้ที่นี่
-  });
+    // แสดง popup ข้อผิดพลาด
+    showErrorDialog(context, 'The username or password is incorrect.');
+  }
 }
 
-
-void signInRaider(BuildContext context) {
+void signInRaider(BuildContext context) async {
   final email = emailController.text.trim();
   final password = passwordController.text.trim();
   final box = GetStorage(); // สร้าง instance ของ GetStorage ที่นี่
@@ -213,11 +218,18 @@ void signInRaider(BuildContext context) {
     raiderPassword: password,
   );
 
-  http.post(
-    Uri.parse('$server/LoginDriver'),
-    headers: {"Content-Type": "application/json; charset=utf-8"},
-    body: loginRaiderToJson(data), // แปลงข้อมูลเป็น JSON ก่อนส่ง
-  ).then((response) {
+  // แสดง popup กำลังโหลด
+  showLoadingDialog(context);
+
+  try {
+    final response = await http.post(
+      Uri.parse('$server/LoginDriver'),
+      headers: {"Content-Type": "application/json; charset=utf-8"},
+      body: loginRaiderToJson(data), // แปลงข้อมูลเป็น JSON ก่อนส่ง
+    );
+
+    Navigator.pop(context); // ปิด popup กำลังโหลด
+
     if (response.statusCode == 200) {
       log('Raider login successful');
       log(response.body);
@@ -239,14 +251,60 @@ void signInRaider(BuildContext context) {
       );
     } else {
       log('Raider login failed');
-      // สามารถแสดงข้อความข้อผิดพลาดให้กับผู้ใช้ได้ที่นี่
+      // แสดง popup ข้อผิดพลาด
+      showErrorDialog(context, 'The username or password is incorrect.');
     }
-  }).catchError((error) {
+  } catch (error) {
+    Navigator.pop(context); // ปิด popup กำลังโหลดในกรณีที่เกิดข้อผิดพลาด
     log('Raider login request failed: $error');
-    // สามารถแสดงข้อความข้อผิดพลาดให้กับผู้ใช้ได้ที่นี่
-  });
+    // แสดง popup ข้อผิดพลาด
+    showErrorDialog(context, 'A connection error occurred.');
+  }
 }
 
 
+  // แสดง popup กำลังโหลด
+void showLoadingDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false, // ไม่ให้ผู้ใช้กดออกจาก popup ได้
+    builder: (BuildContext context) {
+      return const Dialog(
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Text("Loading..."),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+// แสดง popup ข้อผิดพลาด
+void showErrorDialog(BuildContext context, String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("ERROR"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            child: const Text("ตกลง"),
+            onPressed: () {
+              Navigator.of(context).pop(); // ปิด popup
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
 
 }
