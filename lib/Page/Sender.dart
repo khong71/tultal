@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ import 'package:tultal/Page/Login.dart';
 import 'dart:developer';
 
 import 'package:tultal/config/config.dart';
+import 'package:tultal/model/req/postOrder.dart';
 import 'package:tultal/model/res/getUsers.dart'; // For logging search text
 
 import 'package:http/http.dart' as http;
@@ -22,7 +24,8 @@ class Recipient {
   final String phone;
   final String image;
   final LatLng location;
-  Recipient(this.name, this.phone, this.image, this.location);
+  final int userId;
+  Recipient(this.name, this.phone, this.image, this.location, this.userId);
 }
 
 class Sender extends StatefulWidget {
@@ -201,7 +204,7 @@ class _SenderState extends State<Sender> {
                         // ใช้ filteredRecipients ที่ถูกกรอง
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundImage: NetworkImage(recipient
+                            backgroundImage: AssetImage(recipient
                                 .image), // ตรวจสอบให้แน่ใจว่าฟิลด์นี้มีข้อมูล
                           ),
                           title: Text(recipient.name), // แสดงชื่อ
@@ -232,7 +235,7 @@ class _SenderState extends State<Sender> {
                             ListTile(
                               leading: CircleAvatar(
                                 backgroundImage:
-                                    NetworkImage(selectedRecipient!.image),
+                                    AssetImage(selectedRecipient!.image),
                               ),
                               title: Text(selectedRecipient!.name),
                               subtitle: Text(selectedRecipient!.phone),
@@ -377,8 +380,8 @@ class _SenderState extends State<Sender> {
                                 ],
                               ),
                             ),
-
-                            // Add the Send Button below the map
+// ด้านล่างของ FlutterMap (หลังจาก ElevatedButton ของ Send)
+// Add the Send Button below the map
                             const SizedBox(height: 20),
                             Align(
                               alignment: Alignment.bottomCenter,
@@ -389,10 +392,23 @@ class _SenderState extends State<Sender> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 40, vertical: 10),
                                 ),
-                                onPressed: () async {
-                                  await _uploadImage(); // เรียกใช้งานฟังก์ชันเพื่ออัพโหลดภาพ
+                                onPressed: () {
+                                  // Action for send button
                                 },
                                 child: const Text('Send'),
+                              ),
+                            ),
+                            const SizedBox(
+                                height:
+                                    20), // เพิ่มพื้นที่ระหว่างปุ่มส่งและข้อความที่จะแสดง
+                            Align(
+                              alignment: Alignment.center,
+                              child: Text(
+                                'Your ID: ${widget.userId}\n'
+                                'sender ID: ${selectedRecipient!.userId}',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.black),
                               ),
                             ),
                           ],
@@ -453,53 +469,100 @@ class _SenderState extends State<Sender> {
   }
 
   Future<void> loadDataAsync() async {
-  var res = await http.get(Uri.parse('$server/GetUsers'));
-  log(res.body);
+    // ทำการเรียกข้อมูลผู้ใช้จาก API
+    var res = await http.get(Uri.parse('$server/GetUsers'));
+    log(res.body); // แสดงข้อมูลที่ได้รับจากเซิร์ฟเวอร์ใน log
 
-  // Assuming the server returns latitude and longitude as a string
-  users = getUsersFromJson(res.body);
-  log(users.length.toString());
+    // สมมุติว่าเซิร์ฟเวอร์ส่งข้อมูล latitude และ longitude เป็นสตริง
+    users =
+        getUsersFromJson(res.body); // แปลงข้อมูล JSON เป็น List ของ GetUsers
+    log(users.length.toString()); // แสดงจำนวนผู้ใช้ที่ได้รับใน log
 
-  // Convert List<GetUsers> to List<Recipient> with location
-  recipients = users.map((user) {
-    // Assuming user.userLocation is a string like "16.245503062313997,103.25628955733463"
-    String latLngString = user.userLocation; // Get the coordinate string
+    // แปลง List<GetUsers> เป็น List<Recipient> พร้อมตำแหน่งที่ตั้ง
+    recipients = users
+        .map((user) {
+          String latLngString = user.userLocation; // ดึงค่าตำแหน่งที่ตั้ง
 
-    // Check if the latLngString is not null or empty
-    if (latLngString != null && latLngString.isNotEmpty) {
-      List<String> latLng = latLngString.split(','); // Split it by comma
-      if (latLng.length == 2) {
-        try {
-          double latitude = double.parse(latLng[0]); // Parse latitude
-          double longitude = double.parse(latLng[1]); // Parse longitude
+          // ตรวจสอบว่า latLngString ไม่ใช่ null หรือว่างเปล่า
+          if (latLngString != null && latLngString.isNotEmpty) {
+            List<String> latLng =
+                latLngString.split(','); // แยกสตริงตามเครื่องหมายจุลภาค
+            if (latLng.length == 2) {
+              try {
+                double latitude = double.parse(latLng[0]); // แปลงค่าละติจูด
+                double longitude = double.parse(latLng[1]); // แปลงค่าลองจิจูด
 
-          return Recipient(
-            user.userName,
-            user.userPhone,
-            user.userImage,
-            LatLng(latitude, longitude), // Create LatLng object
-          );
-        } catch (e) {
-          log('Error parsing latLng: $e'); // Log parsing error
-        }
-      }
-    }
-    
-    // Return a default recipient or handle null case
-    return Recipient(
-      user.userName,
-      user.userPhone,
-      user.userImage,
-      LatLng(0.0, 0.0), // Default location if parsing fails
+                // ส่งคืนอ็อบเจกต์ Recipient เฉพาะเมื่อ userId ไม่ตรงกับผู้ส่ง
+                if (user.userId != widget.userId) {
+                  // สมมุติว่า user.userId สามารถเข้าถึงได้
+                  return Recipient(user.userName, user.userPhone,
+                      user.userImage, LatLng(latitude, longitude), user.userId);
+                }
+              } catch (e) {
+                log('Error parsing latLng: $e'); // บันทึกข้อผิดพลาดการแปลง
+              }
+            }
+          }
+
+          // คืนค่า null สำหรับผู้ใช้ที่ไม่ควรเพิ่มใน recipients
+          return null;
+        })
+        .where((recipient) => recipient != null)
+        .cast<Recipient>()
+        .toList(); // กรอง recipients เพื่อเอาค่าที่เป็น null ออก
+
+    log('Total recipients: ${recipients.length}'); // แสดงจำนวน recipients ที่ได้
+
+    // อัปเดต filteredRecipients หลังจากโหลดข้อมูล
+    setState(() {
+      filteredRecipients = recipients; // อัปเดต filtered recipients
+    });
+  }
+
+  void send(int sender, int receiver) async {
+  String info = _descriptionController.text;
+  String img = _imageFile?.path ?? 'No image selected'; // Using null-aware operator
+
+  // Validate input
+  if (info.isEmpty) {
+    log('Error: Order info cannot be empty');
+    return;
+  }
+
+  // Create the PostOrder object
+  var data = PostOrder(
+    orderImage: img,
+    orderInfo: info,
+    orderSenderId: sender.toString(),
+    orderReceiverId: receiver.toString(),
+  );
+
+  // Log the PostOrder data
+  log('PostOrder data: '
+      'Order Image: ${data.orderImage}, '
+      'Order Info: ${data.orderInfo}, '
+      'Sender ID: ${data.orderSenderId}, '
+      'Receiver ID: ${data.orderReceiverId}');
+
+  // Sending the POST request
+  try {
+    final response = await http.post(
+      Uri.parse('$server/insertOrder'),
+      headers: {"Content-Type": "application/json; charset=utf-8"},
+      body: json.encode(data.toJson()),
     );
-  }).toList();
 
-  log('Total recipients: ${recipients.length}'); // Log number of recipients
-
-  // Update filteredRecipients after loading data
-  setState(() {
-    filteredRecipients = recipients; // Update filtered recipients
-  });
+    // Check the response status code
+    if (response.statusCode == 200) {
+      log('Order sent successfully: ${response.body}');
+      // Optionally parse the response
+      // final responseData = json.decode(response.body);
+    } else {
+      log('Failed to send order: ${response.statusCode}, ${response.body}');
+    }
+  } catch (e) {
+    log('Error sending order: $e');
+  }
 }
 
   // ฟังก์ชันสำหรับอัพโหลดภาพไปยัง Firebase Storage
