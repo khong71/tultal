@@ -21,8 +21,8 @@ class Recipient {
   final String name;
   final String phone;
   final String image;
-
-  Recipient(this.name, this.phone, this.image);
+  final LatLng location;
+  Recipient(this.name, this.phone, this.image, this.location);
 }
 
 class Sender extends StatefulWidget {
@@ -336,6 +336,7 @@ class _SenderState extends State<Sender> {
                                       ),
                                       MarkerLayer(
                                         markers: [
+                                          // Marker for the current location
                                           Marker(
                                             point: _selectedLocation,
                                             width: 40,
@@ -346,6 +347,21 @@ class _SenderState extends State<Sender> {
                                               color: Colors.red,
                                             ),
                                           ),
+                                          // Marker for the selected recipient, if any
+                                          if (selectedRecipient != null)
+                                            Marker(
+                                              point: selectedRecipient!
+                                                  .location, // Use recipient's location
+                                              width: 40,
+                                              height: 40,
+                                              child: const Icon(
+                                                Icons
+                                                    .person, // Icon to represent the recipient
+                                                size: 40,
+                                                color: Colors
+                                                    .blue, // Change color if needed
+                                              ),
+                                            ),
                                         ],
                                       ),
                                     ],
@@ -361,6 +377,7 @@ class _SenderState extends State<Sender> {
                                 ],
                               ),
                             ),
+
                             // Add the Send Button below the map
                             const SizedBox(height: 20),
                             Align(
@@ -436,26 +453,54 @@ class _SenderState extends State<Sender> {
   }
 
   Future<void> loadDataAsync() async {
-    var res = await http.get(Uri.parse('$server/GetUsers'));
-    log(res.body);
+  var res = await http.get(Uri.parse('$server/GetUsers'));
+  log(res.body);
 
-    // แปลง JSON เป็น List<GetUsers>
-    users = getUsersFromJson(res.body);
-    log(users.length.toString());
+  // Assuming the server returns latitude and longitude as a string
+  users = getUsersFromJson(res.body);
+  log(users.length.toString());
 
-    // แปลง List<GetUsers> เป็น List<Recipient>
-    recipients = users.map((user) {
-      return Recipient(user.userName, user.userPhone,
-          user.userImage); // ตรวจสอบว่า user มีฟิลด์เหล่านี้
-    }).toList();
+  // Convert List<GetUsers> to List<Recipient> with location
+  recipients = users.map((user) {
+    // Assuming user.userLocation is a string like "16.245503062313997,103.25628955733463"
+    String latLngString = user.userLocation; // Get the coordinate string
 
-    log('Total recipients: ${recipients.length}'); // แสดงจำนวน recipients ที่เพิ่มเข้ามา
+    // Check if the latLngString is not null or empty
+    if (latLngString != null && latLngString.isNotEmpty) {
+      List<String> latLng = latLngString.split(','); // Split it by comma
+      if (latLng.length == 2) {
+        try {
+          double latitude = double.parse(latLng[0]); // Parse latitude
+          double longitude = double.parse(latLng[1]); // Parse longitude
 
-    // อัปเดต filteredRecipients หลังจากโหลดข้อมูล
-    setState(() {
-      filteredRecipients = recipients; // อัปเดตตัวกรอง recipients
-    });
-  }
+          return Recipient(
+            user.userName,
+            user.userPhone,
+            user.userImage,
+            LatLng(latitude, longitude), // Create LatLng object
+          );
+        } catch (e) {
+          log('Error parsing latLng: $e'); // Log parsing error
+        }
+      }
+    }
+    
+    // Return a default recipient or handle null case
+    return Recipient(
+      user.userName,
+      user.userPhone,
+      user.userImage,
+      LatLng(0.0, 0.0), // Default location if parsing fails
+    );
+  }).toList();
+
+  log('Total recipients: ${recipients.length}'); // Log number of recipients
+
+  // Update filteredRecipients after loading data
+  setState(() {
+    filteredRecipients = recipients; // Update filtered recipients
+  });
+}
 
   // ฟังก์ชันสำหรับอัพโหลดภาพไปยัง Firebase Storage
 
@@ -500,5 +545,7 @@ class _SenderState extends State<Sender> {
     );
   }
 }
+
+
 
 }
