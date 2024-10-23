@@ -25,13 +25,10 @@ import 'package:get_storage/get_storage.dart';
 import 'package:tultal/Page/Homeraider.dart';
 import 'package:tultal/Page/Homeuser.dart';
 import 'package:tultal/Page/Login.dart';
-import 'package:tultal/firebase_options.dart';
 
 
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); // Initialize Firebase
   GetStorage.init(); // เริ่มต้น GetStorage
   runApp(const MyApp());
 }
