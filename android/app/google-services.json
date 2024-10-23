@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "479707999050",
+    "firebase_url": "https://turtel-32c41-default-rtdb.firebaseio.com",
+    "project_id": "turtel-32c41",
+    "storage_bucket": "turtel-32c41.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:479707999050:android:1be23fff6512ed603e2fb3",
+        "android_client_info": {
+          "package_name": "com.example.tultal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYQtQp8xCBCrF68myv3dhSOjEAFfnb1yk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

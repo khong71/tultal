@@ -92,7 +92,7 @@ class _HomeuserState extends State<Homeuser> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text('ส่งของ',
+                                          Text('Send',
                                               style: TextStyle(
                                                   fontSize: 40,
                                                   fontWeight: FontWeight.bold)),
@@ -136,7 +136,7 @@ class _HomeuserState extends State<Homeuser> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text('รับของ',
+                                          Text('Receive',
                                               style: TextStyle(
                                                   fontSize: 40,
                                                   fontWeight: FontWeight.bold)),
@@ -198,7 +198,7 @@ class _HomeuserState extends State<Homeuser> {
                                 color: Colors.black, size: 30),
                           ],
                         ),
-                        onPressed: () => signOut(context),
+                        onPressed: () => _showExitConfirmationDialog(context),
                       ),
                     ]))));
   }

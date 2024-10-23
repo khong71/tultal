@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
@@ -23,27 +24,19 @@ class Registeruser extends StatefulWidget {
 
 class _RegisteruserState extends State<Registeruser> {
   String server = '';
-  File? _image;
+  XFile? image;
+  String imgUrl = '';
   LatLng _selectedLocation =
       const LatLng(16.246825669508297, 103.25199289277295);
   MapController mapController = MapController();
-  TextEditingController _locationController = TextEditingController(); // Controller for location display
+  TextEditingController _locationController =
+      TextEditingController(); // Controller for location display
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-
-  // Function to pick image from gallery or camera
-  Future<void> _pickImage(ImageSource source) async {
-    final pickedFile = await ImagePicker().pickImage(source: source);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
-  }
 
   // Function to determine the current position
   Future<Position> _determinePosition() async {
@@ -104,7 +97,7 @@ class _RegisteruserState extends State<Registeruser> {
     }
 
     // Check if image is selected
-    if (_image == null) {
+    if (image == null) {
       return "Please select a picture."; //กรุณาเลือกรูปภาพ
     }
 
@@ -174,22 +167,57 @@ class _RegisteruserState extends State<Registeruser> {
                         builder: (BuildContext context) {
                           return SafeArea(
                             child: Wrap(
-                              children: <Widget>[
-                                ListTile(
-                                  leading: const Icon(Icons.photo_library),
-                                  title: const Text('Choose from gallery'),
-                                  onTap: () {
-                                    _pickImage(ImageSource.gallery);
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                                ListTile(
-                                  leading: const Icon(Icons.camera_alt),
-                                  title: const Text('Take a picture'),
-                                  onTap: () {
-                                    _pickImage(ImageSource.camera);
-                                    Navigator.of(context).pop();
-                                  },
+                              children: [
+                                Column(
+                                  children: [
+                                    FilledButton(
+                                      onPressed: () async {
+                                        final ImagePicker picker =
+                                            ImagePicker();
+                                        image = await picker.pickImage(
+                                            source: ImageSource.gallery);
+                                        log('Pressed');
+
+                                        if (image != null &&
+                                            image!.path.isNotEmpty) {
+                                          log('Image selected: ${image!.path}');
+                                          imgUrl = await uploadImage(image!);
+                                          if (imgUrl.isNotEmpty) {
+                                            log('Image uploaded successfully: $imgUrl');
+                                            setState(() {});
+                                          } else {
+                                            log('Image upload failed.');
+                                          }
+                                        } else {
+                                          log('No image selected or invalid image path.');
+                                        }
+
+                                        Navigator.of(context)
+                                            .pop(); // Close modal
+                                      },
+
+                                      child: Text(
+                                          'Select from Gallery'), // ข้อความในปุ่ม
+                                    ),
+                                    // หากต้องการเพิ่มตัวเลือกการถ่ายภาพด้วยกล้อง
+                                    // ListTile(
+                                    //   leading: const Icon(Icons.camera_alt),
+                                    //   title: const Text('Take a picture'),
+                                    //   onTap: () async {
+                                    //     final ImagePicker picker = ImagePicker();
+                                    //     image = await picker.pickImage(source: ImageSource.camera);
+                                    //     if (image != null) {
+                                    //       log(image!.path);
+                                    //       imgUrl = await uploadimg(image!);
+                                    //       log(imgUrl);
+                                    //       setState(() {});
+                                    //     } else {
+                                    //       log('No image taken.');
+                                    //     }
+                                    //     Navigator.of(context).pop();
+                                    //   },
+                                    // ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -200,10 +228,10 @@ class _RegisteruserState extends State<Registeruser> {
                     child: CircleAvatar(
                       radius: 60,
                       backgroundColor: const Color.fromARGB(255, 173, 173, 173),
-                      child: _image != null
+                      child: image != null
                           ? ClipOval(
                               child: Image.file(
-                                _image!,
+                                File(imgUrl), // ใช้ imgUrl ที่ได้จากการอัปโหลด
                                 width: 120,
                                 height: 120,
                                 fit: BoxFit.cover,
@@ -217,6 +245,7 @@ class _RegisteruserState extends State<Registeruser> {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 20),
                 // Username field
                 const Text('Username'),
@@ -390,7 +419,6 @@ class _RegisteruserState extends State<Registeruser> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 145, 89, 57),
-                      
                     ),
                     onPressed: Register,
                     child: const Text(
@@ -439,7 +467,8 @@ class _RegisteruserState extends State<Registeruser> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Error'),
-            content: const Text('Phone number is incomplete or has more than 10 digits.'),
+            content: const Text(
+                'Phone number is incomplete or has more than 10 digits.'),
             actions: <Widget>[
               TextButton(
                 child: const Text('OK'),
@@ -469,6 +498,7 @@ class _RegisteruserState extends State<Registeruser> {
       userEmail: _emailController.text,
       userPassword: _passwordController.text,
       userLocation: _locationController.text,
+      userImage: '_image',
       userPhone: _phoneController.text,
       userAddress: _addressController.text,
     );
@@ -518,7 +548,8 @@ class _RegisteruserState extends State<Registeruser> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Error'),
-              content: Text('Failed to register: ${errorData['message'] ?? 'Unknown error'}'),
+              content: Text(
+                  'Failed to register: ${errorData['message'] ?? 'Unknown error'}'),
               actions: <Widget>[
                 TextButton(
                   child: const Text('OK'),
@@ -553,5 +584,20 @@ class _RegisteruserState extends State<Registeruser> {
         },
       );
     });
+  }
+
+  Future<String> uploadImage(XFile image) async {
+    // สร้าง Reference สำหรับ Firebase Storage
+    final storageRef = FirebaseStorage.instance.ref();
+
+    // สร้าง path สำหรับเก็บรูปภาพ
+    final imageRef = storageRef.child('gg/${image.name}');
+
+    // อัปโหลดรูปภาพ
+    await imageRef.putFile(File(image.path));
+
+    // รับ URL ของรูปภาพที่ถูกอัปโหลด
+    String downloadURL = await imageRef.getDownloadURL();
+    return downloadURL;
   }
 }
