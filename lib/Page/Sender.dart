@@ -1,4 +1,8 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
@@ -198,7 +202,7 @@ class _SenderState extends State<Sender> {
                         // ใช้ filteredRecipients ที่ถูกกรอง
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundImage: AssetImage(recipient
+                            backgroundImage: NetworkImage(recipient
                                 .image), // ตรวจสอบให้แน่ใจว่าฟิลด์นี้มีข้อมูล
                           ),
                           title: Text(recipient.name), // แสดงชื่อ
@@ -229,7 +233,7 @@ class _SenderState extends State<Sender> {
                             ListTile(
                               leading: CircleAvatar(
                                 backgroundImage:
-                                    AssetImage(selectedRecipient!.image),
+                                    NetworkImage(selectedRecipient!.image),
                               ),
                               title: Text(selectedRecipient!.name),
                               subtitle: Text(selectedRecipient!.phone),
@@ -369,8 +373,8 @@ class _SenderState extends State<Sender> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 40, vertical: 10),
                                 ),
-                                onPressed: () {
-                                  // Action for send button
+                                onPressed: () async {
+                                  await _uploadImage(); // เรียกใช้งานฟังก์ชันเพื่ออัพโหลดภาพ
                                 },
                                 child: const Text('Send'),
                               ),
@@ -453,4 +457,49 @@ class _SenderState extends State<Sender> {
       filteredRecipients = recipients; // อัปเดตตัวกรอง recipients
     });
   }
+
+  // ฟังก์ชันสำหรับอัพโหลดภาพไปยัง Firebase Storage
+
+// ฟังก์ชันสำหรับอัพโหลดไฟล์และบันทึก URL
+  Future<void> _uploadImage() async {
+  if (_imageFile != null) {
+    // สร้างชื่อไฟล์สำหรับอัพโหลดไปยังโฟลเดอร์ test
+    String fileName = 'test/${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+    // อัพโหลดไฟล์ไปยัง Firebase Storage
+    try {
+      File imageFile = File(_imageFile!.path);
+      TaskSnapshot snapshot =
+          await FirebaseStorage.instance.ref(fileName).putFile(imageFile);
+
+      // รับ URL ของไฟล์ที่อัพโหลด
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+
+      // บันทึก URL ลง Firestore
+      await FirebaseFirestore.instance
+          .collection('your_collection_name') // เปลี่ยนชื่อที่นี่
+          .add({
+        'imageUrl': downloadUrl,
+        'description': _descriptionController.text,
+        'location': GeoPoint(
+          _selectedLocation.latitude,
+          _selectedLocation.longitude,
+        ),
+      });
+
+      // แสดงข้อความสำเร็จ
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Upload successful!')),
+      );
+    } catch (e) {
+      log('upload :$e');
+    }
+  } else {
+    // หากไม่มีไฟล์ให้แสดงข้อความ
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Please select an image.')),
+    );
+  }
+}
+
 }
