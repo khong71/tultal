@@ -1,3 +1,7 @@
+// ignore_for_file: prefer_const_constructors
+
+import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -7,10 +11,21 @@ import 'package:image_picker/image_picker.dart';
 // ignore: depend_on_referenced_packages
 import 'package:latlong2/latlong.dart';
 import 'package:tultal/Page/Homeraider.dart';
+import 'package:tultal/Page/Sender.dart';
+import 'package:tultal/config/config.dart';
+import 'package:http/http.dart' as http;
 
 class Work extends StatefulWidget {
   final int raiderId;
-  const Work({super.key, required this.raiderId});
+  final String senderid;
+  final String receiverId;
+  final int orderid;
+  const Work(
+      {super.key,
+      required this.raiderId,
+      required this.senderid,
+      required this.receiverId,
+      required this.orderid});
 
   @override
   State<Work> createState() => _WorkState();
@@ -26,10 +41,19 @@ class _WorkState extends State<Work> {
   // Geolocation variables
   Position? _currentPosition;
 
+  String server = '';
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation();
+
+    Config.getConfig().then(
+      (value) {
+        log(value['serverAPI']); // แสดงค่าใน log สำหรับการ debug
+        setState(() {
+          server = value['serverAPI']; // อัปเดตค่า server
+        });
+      },
+    );
   }
 
   void _getCurrentLocation() async {
@@ -82,38 +106,37 @@ class _WorkState extends State<Work> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return WillPopScope(
-    onWillPop: () async {
-      // Prevent the back navigation
-      return false; // Return false to prevent back navigation
-    },
-    child: Scaffold(
-      appBar: AppBar(
-        title: const Text('Delivery'),
-        automaticallyImplyLeading: false,
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        // Prevent the back navigation
+        return false; // Return false to prevent back navigation
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Delivery'),
+          automaticallyImplyLeading: false,
+          backgroundColor: const Color(0xFFEADABC),
+        ),
         backgroundColor: const Color(0xFFEADABC),
+        body: Column(
+          children: [
+            // Status stepper
+            _buildStatusStepper(),
+
+            // Map display
+            Expanded(child: _buildMap()),
+
+            // Recipient info and image upload
+            _buildRecipientInfo(),
+
+            // Action buttons
+            _buildActionButtons(),
+          ],
+        ),
       ),
-      backgroundColor: const Color(0xFFEADABC),
-      body: Column(
-        children: [
-          // Status stepper
-          _buildStatusStepper(),
-
-          // Map display
-          Expanded(child: _buildMap()),
-
-          // Recipient info and image upload
-          _buildRecipientInfo(),
-
-          // Action buttons
-          _buildActionButtons(),
-        ],
-      ),
-    ),
-  );
-}
-
+    );
+  }
 
   Widget _buildStatusStepper() {
     return Padding(
@@ -177,9 +200,10 @@ Widget build(BuildContext context) {
   }
 
   Widget _buildRecipientInfo() {
-    return const Padding(
+    return Padding(
       padding: EdgeInsets.all(8.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start, // Align to start
         children: [
           Row(
             children: [
@@ -187,9 +211,23 @@ Widget build(BuildContext context) {
                 Icons.person,
                 size: 50,
               ),
-              Text('Recipient: John Doe'),
-              SizedBox(width: 10),
-              Text('0800000000'),
+              Expanded(
+                // ใช้ Expanded เพื่อให้ Text ใช้พื้นที่ได้เต็มที่
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start, // Align to start
+                  children: [
+                    Text(
+                        'Recipient: John Doe'), // คุณสามารถปรับให้แสดงชื่อที่ถูกต้องได้
+                    Text('Phone: 0800000000'), // แสดงหมายเลขโทรศัพท์
+                    Text('Raider ID: ${widget.raiderId}'), // แสดง Raider ID
+                    Text('Sender ID: ${widget.senderid}'), // แสดง Sender ID
+                    Text(
+                        'Receiver ID: ${widget.receiverId}'), // แสดง Receiver ID
+                    Text('Order ID: ${widget.orderid}'), // แสดง Order ID
+                  ],
+                ),
+              ),
             ],
           ),
         ],
@@ -290,7 +328,8 @@ Widget build(BuildContext context) {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => Homeraider(raiderId: widget.raiderId)),
+                                    builder: (context) =>
+                                        Homeraider(raiderId: widget.raiderId)),
                               );
                             },
                             child: const Text('Ok'),
@@ -300,6 +339,14 @@ Widget build(BuildContext context) {
                               Navigator.of(context).pop(); // Close the dialog
                             },
                             child: const Text('Cancle'),
+                          ),
+                          TextButton(
+                            onPressed: () => Sender(),
+                            child: const Text('Sender'),
+                          ),
+                          TextButton(
+                            onPressed: () => receiver(),
+                            child: const Text('receiver'),
                           ),
                         ],
                       );
@@ -319,4 +366,32 @@ Widget build(BuildContext context) {
       ],
     );
   }
+
+  Future<void> Sender() async {
+    var response =
+        await http.get(Uri.parse('$server/GetUserid?id=${widget.senderid}'));
+
+    if (response.statusCode == 200) {
+      // แปลงข้อมูล JSON ที่ได้มา
+      var userData = jsonDecode(response.body);
+      log(userData.toString());
+    } else {
+      // ถ้าการร้องขอไม่สำเร็จ
+      log('Failed to load data: ${response.statusCode}');
+    }
+  }
+  Future<void> receiver() async {
+    var response =
+        await http.get(Uri.parse('$server/GetUserid?id=${widget.receiverId}'));
+
+    if (response.statusCode == 200) {
+      // แปลงข้อมูล JSON ที่ได้มา
+      var userData = jsonDecode(response.body);
+      log(userData.toString());
+    } else {
+      // ถ้าการร้องขอไม่สำเร็จ
+      log('Failed to load data: ${response.statusCode}');
+    }
+  }
+  
 }
