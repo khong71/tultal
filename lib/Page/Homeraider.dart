@@ -364,18 +364,8 @@ class _HomeraiderState extends State<Homeraider> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.brown,
                     ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Work(
-                            raiderId: widget.raiderId, // ต้องส่งค่าเป็น int
-                            senderid: senderid, // ต้องส่งค่าเป็น String
-                            receiverId: receiverId, // ต้องส่งค่าเป็น String
-                            orderid: orderid, // ต้องส่งค่าเป็น int
-                          ),
-                        ),
-                      );
+                    onPressed: () async {
+                      await insertwork(context,widget.raiderId,senderid,receiverId,orderid);
                     },
                     child: const Text('Job work',
                         style: TextStyle(color: Colors.white)),
@@ -411,4 +401,39 @@ class _HomeraiderState extends State<Homeraider> {
 
     log(orders.length.toString());
   }
+  
+
+  Future<void> insertwork(BuildContext context, int raiderId, String senderId, String receiverId, int orderId) async {
+  var response = await http.post(
+    Uri.parse('$server/InsertDrive'),
+    body: {
+      'drive_image1': '',
+      'drive_image2': '',
+      'order_id': '$orderId',
+      'drive_status': '0',
+      'raider_id': '$raiderId',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    // ถ้า insert สำเร็จ ทำการดำเนินการต่อ
+    print('Insert successful');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Work(
+          raiderId: raiderId, // ต้องส่งค่าเป็น int
+          senderid: senderId, // ต้องส่งค่าเป็น String
+          receiverId: receiverId, // ต้องส่งค่าเป็น String
+          orderid: orderId, // ต้องส่งค่าเป็น int
+        ),
+      ),
+    );
+  } else {
+    // ถ้า insert ไม่สำเร็จ แสดง error message
+    print('Insert failed with status: ${response.statusCode}');
+  }
+}
+
+
 }
