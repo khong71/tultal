@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -10,7 +12,15 @@ import 'package:tultal/Page/Homeraider.dart';
 
 class Work extends StatefulWidget {
   final int raiderId;
-  const Work({super.key, required this.raiderId});
+  final String senderid;
+  final String receiverId;
+  final int orderid;
+  const Work(
+      {super.key,
+      required this.raiderId,
+      required this.senderid,
+      required this.receiverId,
+      required this.orderid});
 
   @override
   State<Work> createState() => _WorkState();
@@ -82,38 +92,37 @@ class _WorkState extends State<Work> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return WillPopScope(
-    onWillPop: () async {
-      // Prevent the back navigation
-      return false; // Return false to prevent back navigation
-    },
-    child: Scaffold(
-      appBar: AppBar(
-        title: const Text('Delivery'),
-        automaticallyImplyLeading: false,
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        // Prevent the back navigation
+        return false; // Return false to prevent back navigation
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Delivery'),
+          automaticallyImplyLeading: false,
+          backgroundColor: const Color(0xFFEADABC),
+        ),
         backgroundColor: const Color(0xFFEADABC),
+        body: Column(
+          children: [
+            // Status stepper
+            _buildStatusStepper(),
+
+            // Map display
+            Expanded(child: _buildMap()),
+
+            // Recipient info and image upload
+            _buildRecipientInfo(),
+
+            // Action buttons
+            _buildActionButtons(),
+          ],
+        ),
       ),
-      backgroundColor: const Color(0xFFEADABC),
-      body: Column(
-        children: [
-          // Status stepper
-          _buildStatusStepper(),
-
-          // Map display
-          Expanded(child: _buildMap()),
-
-          // Recipient info and image upload
-          _buildRecipientInfo(),
-
-          // Action buttons
-          _buildActionButtons(),
-        ],
-      ),
-    ),
-  );
-}
-
+    );
+  }
 
   Widget _buildStatusStepper() {
     return Padding(
@@ -177,9 +186,10 @@ Widget build(BuildContext context) {
   }
 
   Widget _buildRecipientInfo() {
-    return const Padding(
+    return Padding(
       padding: EdgeInsets.all(8.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start, // Align to start
         children: [
           Row(
             children: [
@@ -187,9 +197,23 @@ Widget build(BuildContext context) {
                 Icons.person,
                 size: 50,
               ),
-              Text('Recipient: John Doe'),
-              SizedBox(width: 10),
-              Text('0800000000'),
+              Expanded(
+                // ใช้ Expanded เพื่อให้ Text ใช้พื้นที่ได้เต็มที่
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start, // Align to start
+                  children: [
+                    Text(
+                        'Recipient: John Doe'), // คุณสามารถปรับให้แสดงชื่อที่ถูกต้องได้
+                    Text('Phone: 0800000000'), // แสดงหมายเลขโทรศัพท์
+                    Text('Raider ID: ${widget.raiderId}'), // แสดง Raider ID
+                    Text('Sender ID: ${widget.senderid}'), // แสดง Sender ID
+                    Text(
+                        'Receiver ID: ${widget.receiverId}'), // แสดง Receiver ID
+                    Text('Order ID: ${widget.orderid}'), // แสดง Order ID
+                  ],
+                ),
+              ),
             ],
           ),
         ],
@@ -290,7 +314,8 @@ Widget build(BuildContext context) {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => Homeraider(raiderId: widget.raiderId)),
+                                    builder: (context) =>
+                                        Homeraider(raiderId: widget.raiderId)),
                               );
                             },
                             child: const Text('Ok'),
