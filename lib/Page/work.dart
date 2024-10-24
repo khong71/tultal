@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -9,6 +11,9 @@ import 'package:image_picker/image_picker.dart';
 // ignore: depend_on_referenced_packages
 import 'package:latlong2/latlong.dart';
 import 'package:tultal/Page/Homeraider.dart';
+import 'package:tultal/Page/Sender.dart';
+import 'package:tultal/config/config.dart';
+import 'package:http/http.dart' as http;
 
 class Work extends StatefulWidget {
   final int raiderId;
@@ -36,10 +41,19 @@ class _WorkState extends State<Work> {
   // Geolocation variables
   Position? _currentPosition;
 
+  String server = '';
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation();
+
+    Config.getConfig().then(
+      (value) {
+        log(value['serverAPI']); // แสดงค่าใน log สำหรับการ debug
+        setState(() {
+          server = value['serverAPI']; // อัปเดตค่า server
+        });
+      },
+    );
   }
 
   void _getCurrentLocation() async {
@@ -326,6 +340,14 @@ class _WorkState extends State<Work> {
                             },
                             child: const Text('Cancle'),
                           ),
+                          TextButton(
+                            onPressed: () => Sender(),
+                            child: const Text('Sender'),
+                          ),
+                          TextButton(
+                            onPressed: () => receiver(),
+                            child: const Text('receiver'),
+                          ),
                         ],
                       );
                     },
@@ -344,4 +366,32 @@ class _WorkState extends State<Work> {
       ],
     );
   }
+
+  Future<void> Sender() async {
+    var response =
+        await http.get(Uri.parse('$server/GetUserid?id=${widget.senderid}'));
+
+    if (response.statusCode == 200) {
+      // แปลงข้อมูล JSON ที่ได้มา
+      var userData = jsonDecode(response.body);
+      log(userData.toString());
+    } else {
+      // ถ้าการร้องขอไม่สำเร็จ
+      log('Failed to load data: ${response.statusCode}');
+    }
+  }
+  Future<void> receiver() async {
+    var response =
+        await http.get(Uri.parse('$server/GetUserid?id=${widget.receiverId}'));
+
+    if (response.statusCode == 200) {
+      // แปลงข้อมูล JSON ที่ได้มา
+      var userData = jsonDecode(response.body);
+      log(userData.toString());
+    } else {
+      // ถ้าการร้องขอไม่สำเร็จ
+      log('Failed to load data: ${response.statusCode}');
+    }
+  }
+  
 }
