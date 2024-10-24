@@ -6,7 +6,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:tultal/Page/CheckStatus.dart';
 import 'package:tultal/Page/Login.dart';
 import 'dart:developer';
 
@@ -134,7 +133,7 @@ class _SenderState extends State<Sender> {
       bottomNavigationBar: BottomAppBar(
         color: const Color(0xFFE2DBBF),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             IconButton(
               icon: const Icon(Icons.home, color: Colors.black, size: 30),
@@ -142,10 +141,6 @@ class _SenderState extends State<Sender> {
                 // Navigate to home page or replace with the right route
                 Navigator.pop(context);
               },
-            ),
-            IconButton(
-              icon: const Icon(Icons.all_inbox, color: Colors.black, size: 30),
-              onPressed: () => CheckStatu(),
             ),
             IconButton(
               icon:
@@ -305,12 +300,6 @@ class _SenderState extends State<Sender> {
                               ),
                             ),
                             const SizedBox(height: 20),
-                            const Text(
-                              'Please select the point where the driver will pick up the item.',
-                              style:
-                                  TextStyle(fontSize: 10, color: Colors.black),
-                            ),
-                            const SizedBox(height: 10),
                             SizedBox(
                               height: 250,
                               child: Stack(
@@ -318,7 +307,8 @@ class _SenderState extends State<Sender> {
                                   FlutterMap(
                                     mapController: mapController,
                                     options: MapOptions(
-                                      initialCenter: _selectedLocation,
+                                      initialCenter: selectedRecipient!
+                                          .location, // เริ่มต้นที่ตำแหน่งผู้รับ
                                       initialZoom: 15.0,
                                       onTap: (tapPosition, point) {
                                         setState(() {
@@ -336,32 +326,19 @@ class _SenderState extends State<Sender> {
                                       ),
                                       MarkerLayer(
                                         markers: [
-                                          // Marker for the current location
+                                          // Marker for the selected recipient
                                           Marker(
-                                            point: _selectedLocation,
+                                            point: selectedRecipient!
+                                                .location, // ตำแหน่งของผู้รับ
                                             width: 40,
                                             height: 40,
                                             child: const Icon(
-                                              Icons.location_on,
+                                              Icons
+                                                  .person, // ไอคอนรูปคนสำหรับผู้รับ
                                               size: 40,
-                                              color: Colors.red,
+                                              color: Colors.blue,
                                             ),
                                           ),
-                                          // Marker for the selected recipient, if any
-                                          if (selectedRecipient != null)
-                                            Marker(
-                                              point: selectedRecipient!
-                                                  .location, // Use recipient's location
-                                              width: 40,
-                                              height: 40,
-                                              child: const Icon(
-                                                Icons
-                                                    .person, // Icon to represent the recipient
-                                                size: 40,
-                                                color: Colors
-                                                    .blue, // Change color if needed
-                                              ),
-                                            ),
                                         ],
                                       ),
                                     ],
@@ -370,15 +347,22 @@ class _SenderState extends State<Sender> {
                                     right: 10,
                                     bottom: 10,
                                     child: FloatingActionButton(
-                                      onPressed: _moveToCurrentLocation,
-                                      child: const Icon(Icons.my_location),
+                                      onPressed: () {
+                                        mapController.move(
+                                            selectedRecipient!.location,
+                                            15.0); // กลับไปที่ผู้รับ
+                                      },
+                                      backgroundColor: Colors
+                                          .brown, // สีน้ำตาลสำหรับพื้นหลังของปุ่ม
+                                      foregroundColor:
+                                          Colors.white, // สีขาวสำหรับไอคอน
+                                      child: const Icon(
+                                          Icons.person), // ไอคอนรูปคน
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-// ด้านล่างของ FlutterMap (หลังจาก ElevatedButton ของ Send)
-// Add the Send Button below the map
                             const SizedBox(height: 20),
                             Align(
                               alignment: Alignment.bottomCenter,
@@ -445,14 +429,6 @@ class _SenderState extends State<Sender> {
     );
   }
 
-  void CheckStatu() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-          builder: (context) => Checkstatus(userId: widget.userId)),
-    );
-  }
-
   void signOut(BuildContext context) {
     final box = GetStorage(); // สร้าง instance ของ GetStorage
     box.remove('isLoggedIn'); // ลบสถานะการล็อกอิน
@@ -516,50 +492,97 @@ class _SenderState extends State<Sender> {
   }
 
   void send(int sender, int receiver) async {
-  String info = _descriptionController.text;
-  String img = _imageFile?.path ?? 'No image selected'; // Using null-aware operator
+    String info = _descriptionController.text;
+    String img =
+        _imageFile?.path ?? 'No image selected'; // Using null-aware operator
 
-  // Validate input
-  if (info.isEmpty) {
-    log('Error: Order info cannot be empty');
-    return;
-  }
+    // Validate input
+    if (info.isEmpty) {
+      _showDetailErrorDialog();
+      log('Error: Order info cannot be empty');
+      return;
+    }
 
-  // Create the PostOrder object
-  var data = PostOrder(
-    orderImage: img,
-    orderInfo: info,
-    orderSenderId: sender.toString(),
-    orderReceiverId: receiver.toString(),
-  );
-
-  // Log the PostOrder data
-  log('PostOrder data: '
-      'Order Image: ${data.orderImage}, '
-      'Order Info: ${data.orderInfo}, '
-      'Sender ID: ${data.orderSenderId}, '
-      'Receiver ID: ${data.orderReceiverId}');
-
-  // Sending the POST request
-  try {
-    final response = await http.post(
-      Uri.parse('$server/insertOrder'),
-      headers: {"Content-Type": "application/json; charset=utf-8"},
-      body: json.encode(data.toJson()),
+    // Create the PostOrder object
+    var data = PostOrder(
+      orderImage: img,
+      orderInfo: info,
+      orderSenderId: sender.toString(),
+      orderReceiverId: receiver.toString(),
     );
 
-    // Check the response status code
-    if (response.statusCode == 200) {
-      log('Order sent successfully: ${response.body}');
-      // Optionally parse the response
-      // final responseData = json.decode(response.body);
-    } else {
-      log('Failed to send order: ${response.statusCode}, ${response.body}');
+    // Log the PostOrder data
+    log('PostOrder data: '
+        'Order Image: ${data.orderImage}, '
+        'Order Info: ${data.orderInfo}, '
+        'Sender ID: ${data.orderSenderId}, '
+        'Receiver ID: ${data.orderReceiverId}');
+
+    // Sending the POST request
+    try {
+      final response = await http.post(
+        Uri.parse('$server/insertOrder'),
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+        body: json.encode(data.toJson()),
+      );
+
+      // Check the response status code
+      if (response.statusCode == 200) {
+        log('Order sent successfully: ${response.body}');
+
+        // Show the popup to confirm the order was successful
+        _showSuccessDialog();
+      } else {
+        log('Failed to send order: ${response.statusCode}, ${response.body}');
+      }
+    } catch (e) {
+      log('Error sending order: $e');
     }
-  } catch (e) {
-    log('Error sending order: $e');
   }
-}
 
+  void _showSuccessDialog() {
+    showDialog<void>(
+      context: context,
+      barrierDismissible:
+          false, // Prevent dismissal by tapping outside the dialog
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Order Sent'),
+          content:
+              const Text('Your order has been added to the list successfully!'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop(); // Navigate back to HomeUser.dart
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
+  void _showDetailErrorDialog() {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false, // Prevent dismissal by tapping outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Missing Details'),
+          content: const Text(
+              'Please fill in the information in the fields detail.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // ปิด popup
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

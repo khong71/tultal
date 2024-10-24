@@ -1,8 +1,13 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as http;
 import 'package:tultal/Page/CheckStatus.dart';
 import 'package:tultal/Page/Homeuser.dart';
 import 'package:tultal/Page/Login.dart';
+import 'package:tultal/config/config.dart';
+import 'package:tultal/model/res/GetOrderSendList.dart';
 
 class Senditem extends StatefulWidget {
   final int userId;
@@ -13,6 +18,41 @@ class Senditem extends StatefulWidget {
 }
 
 class _SenditemState extends State<Senditem> {
+  List<GetOrderSendList> orders = []; // สร้าง List สำหรับเก็บข้อมูลที่ได้จาก API
+  bool isLoading = true; // สถานะการโหลดข้อมูล
+  String server = '';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchOrders(); // เรียกฟังก์ชันเพื่อดึงข้อมูลเมื่อเริ่มต้น
+    Config.getConfig().then(
+      (value) {
+        log(value['serverAPI']); // แสดงค่าใน log สำหรับการ debug
+        setState(() {
+          server = value['serverAPI']; // อัปเดตค่า server
+        });
+        fetchOrders(); // เรียกใช้ฟังก์ชันโหลดข้อมูล
+      },
+    );
+  }
+
+  Future<void> fetchOrders() async {
+    final response = await http.get(Uri.parse(
+        '$server/GetOrdersId?id=${widget.userId}')); // URL ดึงข้อมูลที่กำหนดไว้
+
+    if (response.statusCode == 200) {
+      // ถ้าการเรียก API สำเร็จ
+      setState(() {
+        orders = getOrderSendListFromJson(response.body); // แปลง JSON และเก็บใน List
+        isLoading = false; // เปลี่ยนสถานะการโหลดข้อมูล
+      });
+    } else {
+      // ถ้าการเรียก API ล้มเหลว
+      throw Exception('Failed to load orders');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,111 +61,95 @@ class _SenditemState extends State<Senditem> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pop(context); // กลับไปยังหน้าก่อนหน้า
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Homeuser(userId: widget.userId),
+              ),
+            );
           },
         ),
-        title: const Text('Receiver', style: TextStyle(color: Colors.black)),
+        title: const Text('SendList', style: TextStyle(color: Colors.black)),
       ),
       bottomNavigationBar: BottomAppBar(
         color: const Color(0xFFE2DBBF),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             IconButton(
-              icon: const Column(
-                children: [
-                  Icon(Icons.home, color: Colors.black, size: 30),
-                ],
-              ),
+              icon: const Icon(Icons.home, color: Colors.black, size: 30),
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (context) => Homeuser(userId: widget.userId),
-                  ), // นำทางไปยังหน้า Homeuser
+                  ),
                 );
               },
             ),
             IconButton(
-              icon: const Column(
-                children: [
-                  Icon(Icons.all_inbox, color: Colors.black, size: 30),
-                ],
-              ),
-              onPressed: () => CheckStatu(),
-            ),
-            IconButton(
-              icon: const Column(
-                children: [
-                  Icon(Icons.exit_to_app, color: Colors.black, size: 30),
-                ],
-              ),
+              icon: const Icon(Icons.exit_to_app, color: Colors.black, size: 30),
               onPressed: () => signOut(context), // ฟังก์ชัน signOut
             ),
           ],
         ),
       ),
       body: Container(
-        color: const Color(0xFFDBC7A1), 
+        color: const Color(0xFFDBC7A1),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16),
-              const Text(
-                'รายการที่รอส่งของ',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: 2, // จำนวนผู้ส่งที่รอ
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: ListTile(
-                          leading: const CircleAvatar(
-                            backgroundImage:
-                                AssetImage('assets/image/logo.png'), // รูปโปรไฟล์
-                            radius: 25,
-                          ),
-                          title: const Text(
-                            'ผู้รับ',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                          subtitle: const Text('0811111111'),
-                          trailing: ElevatedButton(
-                            onPressed: () {
-                              // นำทางไปยังหน้า CheckStatus
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Checkstatus(userId: widget.userId),
+          child: isLoading
+              ? Center(child: CircularProgressIndicator()) // แสดง loading indicator
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: orders.length, // จำนวนรายการจาก API
+                        itemBuilder: (context, index) {
+                          final order = orders[index];
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundImage: NetworkImage(order.userImage), // รูปผู้รับจากฐานข้อมูล
+                                  radius: 25,
                                 ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  Colors.brown, // Brown for the button
-                              foregroundColor: Colors.white, // White text
+                                title: Text(
+                                  order.userName, // ชื่อผู้รับจากฐานข้อมูล
+                                  style: const TextStyle(fontSize: 18),
+                                ),
+                                subtitle: Text(order.userPhone), // เบอร์โทรจากฐานข้อมูล
+                                trailing: ElevatedButton(
+                                  onPressed: () {
+                                    // นำทางไปยังหน้า CheckStatus
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            Checkstatus(userId: widget.userId),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.brown, // Brown for the button
+                                    foregroundColor: Colors.white, // White text
+                                  ),
+                                  child: const Text('เช็ค'),
+                                ),
+                              ),
                             ),
-                            child: const Text(
-                              'เช็ค',
-                            ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
-                    );
-                  },
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -139,13 +163,6 @@ class _SenditemState extends State<Senditem> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => LoginPage()),
-    );
-  }
-
-  void CheckStatu() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => Checkstatus(userId: widget.userId)),
     );
   }
 }
