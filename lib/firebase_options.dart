@@ -53,14 +53,11 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAYQtQp8xCBCrF68myv3dhSOjEAFfnb1yk',
-    appId: '1:479707999050:android:1be23fff6512ed603e2fb3',
-    messagingSenderId: '479707999050',
-    projectId: 'turtel-32c41',
-    databaseURL: 'https://turtel-32c41-default-rtdb.firebaseio.com',
-    storageBucket: 'turtel-32c41.appspot.com',
+    apiKey: 'AIzaSyBO9Kh-WzjOC8uUBnonKXP1e53e5mA6D7Q',
+    appId: '1:416004402294:android:0c775570a3200f63c0c357',
+    messagingSenderId: '416004402294',
+    projectId: 'tultal-ec5e8',
+    storageBucket: 'tultal-ec5e8.appspot.com',
   );
+
 }
-
-
-
