@@ -494,7 +494,7 @@ class _SenderState extends State<Sender> {
   void send(int sender, int receiver) async {
     String info = _descriptionController.text;
     String img =
-        _imageFile?.path ?? 'No image selected'; // Using null-aware operator
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5VQuMrASnyK_TSUPFWPOTzIMw0L6XDYbqcg&s'; // Using null-aware operator
 
     // Validate input
     if (info.isEmpty) {

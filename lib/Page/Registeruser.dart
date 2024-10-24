@@ -519,7 +519,7 @@ Future<void> _uploadImageToFirebase() async {
     userLocation: _locationController.text,
     userPhone: _phoneController.text,
     userAddress: _addressController.text,
-    userImage: '', // Initialize with an empty string or default value
+    userImage: 'https://img.lovepik.com/free-png/20211119/lovepik-vector-cartoon-characters-png-image_401038641_wh1200.png', // Initialize with an empty string or default value
   );
 
   // Check if image URL is available and set it
