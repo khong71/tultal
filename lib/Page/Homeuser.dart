@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:tultal/Page/CheckStatus.dart';
 import 'package:tultal/Page/Login.dart';
 import 'package:tultal/Page/ProfilePage.dart';
 import 'package:tultal/Page/Receiver.dart';
+import 'package:tultal/Page/SendItem.dart';
 import 'package:tultal/Page/Sender.dart';
 
 class Homeuser extends StatefulWidget {
@@ -189,7 +189,7 @@ class _HomeuserState extends State<Homeuser> {
                                 color: Colors.black, size: 30),
                           ],
                         ),
-                        onPressed: () => CheckStatu(),
+                        onPressed: () => SendItem(),
                       ),
                       IconButton(
                         icon: const Column(
@@ -214,11 +214,11 @@ class _HomeuserState extends State<Homeuser> {
     );
   }
 
-  void CheckStatu() {
+  void SendItem() {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-          builder: (context) => Checkstatus(userId: widget.userId)),
+          builder: (context) => Senditem(userId: widget.userId)),
     );
   }
 
