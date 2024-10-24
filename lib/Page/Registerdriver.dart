@@ -375,7 +375,7 @@ class _RegisterdriverState extends State<Registerdriver> {
         raiderName: _usernameController.text,
         raiderEmail: _emailController.text,
         raiderPhone: _phoneController.text,
-        // raiderImage: , // Add image upload logic if needed
+        raiderImage: 'https://png.pngtree.com/element_our/20200702/ourlarge/pngtree-cartoon-rider-image_2287471.jpg', // Add image upload logic if needed
         raiderNumder: _licensePlateController.text,
         raiderPassword: _passwordController.text,
         raiderLocation: "0,0" // Set location to (0,0)

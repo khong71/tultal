@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
@@ -18,37 +17,35 @@ class Senditem extends StatefulWidget {
 }
 
 class _SenditemState extends State<Senditem> {
-  List<GetOrderSendList> orders = []; // สร้าง List สำหรับเก็บข้อมูลที่ได้จาก API
-  bool isLoading = true; // สถานะการโหลดข้อมูล
+  List<GetOrderSendList> orders = [];
+  bool isLoading = true;
   String server = '';
 
   @override
   void initState() {
     super.initState();
-    fetchOrders(); // เรียกฟังก์ชันเพื่อดึงข้อมูลเมื่อเริ่มต้น
+    fetchOrders();
     Config.getConfig().then(
       (value) {
-        log(value['serverAPI']); // แสดงค่าใน log สำหรับการ debug
+        log(value['serverAPI']);
         setState(() {
-          server = value['serverAPI']; // อัปเดตค่า server
+          server = value['serverAPI'];
         });
-        fetchOrders(); // เรียกใช้ฟังก์ชันโหลดข้อมูล
+        fetchOrders();
       },
     );
   }
 
   Future<void> fetchOrders() async {
     final response = await http.get(Uri.parse(
-        '$server/GetOrdersId?id=${widget.userId}')); // URL ดึงข้อมูลที่กำหนดไว้
+        '$server/GetOrdersSendList?id=${widget.userId}'));
 
     if (response.statusCode == 200) {
-      // ถ้าการเรียก API สำเร็จ
       setState(() {
-        orders = getOrderSendListFromJson(response.body); // แปลง JSON และเก็บใน List
-        isLoading = false; // เปลี่ยนสถานะการโหลดข้อมูล
+        orders = getOrderSendListFromJson(response.body);
+        isLoading = false;
       });
     } else {
-      // ถ้าการเรียก API ล้มเหลว
       throw Exception('Failed to load orders');
     }
   }
@@ -89,7 +86,7 @@ class _SenditemState extends State<Senditem> {
             ),
             IconButton(
               icon: const Icon(Icons.exit_to_app, color: Colors.black, size: 30),
-              onPressed: () => signOut(context), // ฟังก์ชัน signOut
+              onPressed: () => signOut(context),
             ),
           ],
         ),
@@ -99,14 +96,14 @@ class _SenditemState extends State<Senditem> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: isLoading
-              ? Center(child: CircularProgressIndicator()) // แสดง loading indicator
+              ? Center(child: CircularProgressIndicator())
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 16),
                     Expanded(
                       child: ListView.builder(
-                        itemCount: orders.length, // จำนวนรายการจาก API
+                        itemCount: orders.length,
                         itemBuilder: (context, index) {
                           final order = orders[index];
                           return Padding(
@@ -117,28 +114,35 @@ class _SenditemState extends State<Senditem> {
                               ),
                               child: ListTile(
                                 leading: CircleAvatar(
-                                  backgroundImage: NetworkImage(order.userImage), // รูปผู้รับจากฐานข้อมูล
+                                  backgroundImage: NetworkImage(order.userImage),
                                   radius: 25,
                                 ),
                                 title: Text(
-                                  order.userName, // ชื่อผู้รับจากฐานข้อมูล
+                                  order.userName,
                                   style: const TextStyle(fontSize: 18),
                                 ),
-                                subtitle: Text(order.userPhone), // เบอร์โทรจากฐานข้อมูล
+                                subtitle: Text(order.userPhone),
                                 trailing: ElevatedButton(
                                   onPressed: () {
-                                    // นำทางไปยังหน้า CheckStatus
+                                    log('Order Receiver ID: ${order.orderReceiverId}');
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) =>
-                                            Checkstatus(userId: widget.userId),
+                                        builder: (context) => Checkstatus(
+                                          userId: widget.userId,
+                                          orderInfo: order.orderInfo,
+                                          orderImage: order.orderImage,
+                                          userName: order.userName,
+                                          userPhone: order.userPhone,
+                                          userImage: order.userImage,
+                                          orderReceiverId: order.orderReceiverId, 
+                                        ),
                                       ),
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.brown, // Brown for the button
-                                    foregroundColor: Colors.white, // White text
+                                    backgroundColor: Colors.brown,
+                                    foregroundColor: Colors.white,
                                   ),
                                   child: const Text('เช็ค'),
                                 ),
@@ -156,10 +160,8 @@ class _SenditemState extends State<Senditem> {
   }
 
   void signOut(BuildContext context) {
-    final box = GetStorage(); // สร้าง instance ของ GetStorage
-    box.remove('isLoggedIn'); // ลบสถานะการล็อกอิน
-
-    // นำทางกลับไปยังหน้า Login
+    final box = GetStorage();
+    box.remove('isLoggedIn');
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => LoginPage()),

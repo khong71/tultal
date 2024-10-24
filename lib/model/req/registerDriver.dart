@@ -12,7 +12,7 @@ class RegisterDriver {
     String raiderName;
     String raiderEmail;
     String raiderPhone;
-    // String raiderImage;
+    String raiderImage;
     String raiderNumder;
     String raiderPassword;
     String raiderLocation;
@@ -21,7 +21,7 @@ class RegisterDriver {
         required this.raiderName,
         required this.raiderEmail,
         required this.raiderPhone,
-        // required this.raiderImage,
+        required this.raiderImage,
         required this.raiderNumder,
         required this.raiderPassword,
         required this.raiderLocation,
@@ -31,7 +31,7 @@ class RegisterDriver {
         raiderName: json["Raider_name"],
         raiderEmail: json["Raider_email"],
         raiderPhone: json["Raider_Phone"],
-        // raiderImage: json["Raider_image"],
+        raiderImage: json["Raider_image"],
         raiderNumder: json["Raider_numder"],
         raiderPassword: json["Raider_password"],
         raiderLocation: json["Raider_location"],
@@ -41,7 +41,7 @@ class RegisterDriver {
         "Raider_name": raiderName,
         "Raider_email": raiderEmail,
         "Raider_Phone": raiderPhone,
-        // "Raider_image": raiderImage,
+        "Raider_image": raiderImage,
         "Raider_numder": raiderNumder,
         "Raider_password": raiderPassword,
         "Raider_location": raiderLocation,
