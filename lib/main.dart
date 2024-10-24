@@ -29,7 +29,7 @@ import 'package:tultal/Page/Login.dart';
 
 
 void main() async {
-   GetStorage.init(); // เริ่มต้น GetStorage
+  GetStorage.init(); // เริ่มต้น GetStorage
   runApp(const MyApp());
 }
 

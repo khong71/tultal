@@ -228,4 +228,8 @@ class _CheckstatusState extends State<Checkstatus> {
       ),
     );
   }
+
+  Future<void> loadDataAsync() async {
+    
+  }
 }
