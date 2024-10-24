@@ -1,11 +1,14 @@
 import 'dart:convert';
-import 'dart:math';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'package:tultal/Page/Homeuser.dart';
+import 'package:tultal/config/config.dart';
+import 'package:tultal/model/res/getSender.dart';
 
 class Checkstatus extends StatefulWidget {
   final int userId;
@@ -37,12 +40,22 @@ class _CheckstatusState extends State<Checkstatus> {
   String? receiverPhone;
   String? receiverImage;
   LatLng? receiverLocation;
-
+  String server = '';
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
     _fetchReceiverInfo(widget.orderReceiverId); // Fetch receiver info
+
+    Config.getConfig().then(
+      (value) {
+        log(value['serverAPI']); // แสดงค่าใน log สำหรับการ debug
+        setState(() {
+          server = value['serverAPI']; // อัปเดตค่า server
+        });
+      },
+    );
+    receiver();
   }
 
   void _getCurrentLocation() async {
@@ -229,7 +242,44 @@ class _CheckstatusState extends State<Checkstatus> {
     );
   }
 
-  Future<void> loadDataAsync() async {
-    
+  Future<void> receiver() async {
+    try {
+      var response = await http
+          .get(Uri.parse('$server/GetUserid?id=${widget.orderReceiverId}'));
+
+      if (response.statusCode == 200) {
+        // แปลงข้อมูล JSON ที่ได้รับ
+        var jsonData = jsonDecode(response.body);
+
+        // เช็คว่าเป็น List หรือ Map
+        if (jsonData is List) {
+          // log('Received a List: ${jsonData.toString()}');
+        } else if (jsonData is Map) {
+          log('Received a Map: ${jsonData.toString()}');
+        }
+
+        // ถ้าเป็น List คุณต้องทำการดึงข้อมูลผู้ใช้จากรายการ
+        if (jsonData is List && jsonData.isNotEmpty) {
+          GetSender receiver = GetSender.fromJson(
+              jsonData[0]); // สมมติว่าเราต้องการผู้ใช้แรกในรายการ
+
+          // Split the location into latitude and longitude
+          List<String> locationParts = receiver.userLocation.split(',');
+          if (locationParts.length == 2) {
+            String latitude = locationParts[0].trim();
+            String longitude = locationParts[1].trim();
+
+            log('Receiver latitude: $latitude');
+            log('Receiver longitude: $longitude');
+          } else {
+            log('Invalid location format: ${receiver.userLocation}');
+          }
+        }
+      } else {
+        log('Failed to load data: ${response.statusCode}');
+      }
+    } catch (e) {
+      log('Error parsing data: $e');
+    }
   }
 }

@@ -16,16 +16,17 @@ import 'package:tultal/config/config.dart';
 import 'package:http/http.dart' as http;
 
 class Work extends StatefulWidget {
-  final int raiderId;
+ final int raiderId;
   final String senderid;
   final String receiverId;
   final int orderid;
-  const Work(
-      {super.key,
-      required this.raiderId,
-      required this.senderid,
-      required this.receiverId,
-      required this.orderid});
+
+  const Work({
+    required this.raiderId,
+    required this.senderid,
+    required this.receiverId,
+    required this.orderid,
+  });
 
   @override
   State<Work> createState() => _WorkState();
