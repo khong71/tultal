@@ -14,6 +14,7 @@ import 'package:tultal/Page/Homeraider.dart';
 import 'package:tultal/Page/Sender.dart';
 import 'package:tultal/config/config.dart';
 import 'package:http/http.dart' as http;
+import 'package:tultal/model/res/getSender.dart';
 
 class Work extends StatefulWidget {
  final int raiderId;
@@ -38,6 +39,10 @@ class _WorkState extends State<Work> {
   final ImagePicker _picker = ImagePicker();
   XFile? pickupImage;
   XFile? deliveryImage;
+  double? senderLatitude;
+  double? senderLongitude;
+  double? receiverLatitude;
+  double? receiverLongitude;
 
   // Geolocation variables
   Position? _currentPosition;
@@ -58,15 +63,19 @@ class _WorkState extends State<Work> {
   }
 
   void _getCurrentLocation() async {
-    try {
-      Position position = await Geolocator.getCurrentPosition(
-          // ignore: deprecated_member_use
-          desiredAccuracy: LocationAccuracy.high);
+  try {
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    if (mounted) {
       setState(() {
         _currentPosition = position;
       });
-    } catch (e) {
-      // Default to the predefined coordinates if unable to get the location
+    }
+  } catch (e) {
+    // Handle location error
+    log('Location error: $e');
+    // Default position can be set as fallback
+    if (mounted) {
       setState(() {
         _currentPosition = Position(
           latitude: 16.246825669508297,
@@ -74,16 +83,18 @@ class _WorkState extends State<Work> {
           timestamp: DateTime.now(),
           accuracy: 0,
           altitude: 0,
-          altitudeAccuracy: 0, // Add this line
+          altitudeAccuracy: 0,
           heading: 0,
-          headingAccuracy: 0, // Add this line
+          headingAccuracy: 0,
           speed: 0,
           speedAccuracy: 0,
-          isMocked: false, // Optional
+          isMocked: false,
         );
       });
     }
   }
+}
+
 
   // Function to update status and turtle position
   void _updateStatus(int newStatus) {
@@ -171,34 +182,55 @@ class _WorkState extends State<Work> {
   }
 
   Widget _buildMap() {
-    return FlutterMap(
-      options: MapOptions(
-        initialCenter: LatLng(_currentPosition?.latitude ?? 16.246825669508297,
-            _currentPosition?.longitude ?? 103.25199289277295),
-        initialZoom: 15.0,
+  return FlutterMap(
+    options: MapOptions(
+      initialCenter: LatLng(_currentPosition?.latitude ?? 16.246825669508297,
+          _currentPosition?.longitude ?? 103.25199289277295),
+      initialZoom: 15.0,
+    ),
+    children: [
+      TileLayer(
+        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        subdomains: const ['a', 'b', 'c'],
       ),
-      children: [
-        TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-          subdomains: const ['a', 'b', 'c'],
-        ),
-        MarkerLayer(
-          markers: [
+      MarkerLayer(
+        markers: [
+          // Current location marker
+          Marker(
+            point: LatLng(_currentPosition?.latitude ?? 16.246825669508297,
+                _currentPosition?.longitude ?? 103.25199289277295),
+            child: Image.asset(
+              'assets/image/3077443.png',
+              width: 30,
+              height: 30,
+            ),
+          ),
+          // Sender location marker
+          if (senderLatitude != null && senderLongitude != null)
             Marker(
-              point: LatLng(_currentPosition?.latitude ?? 16.246825669508297,
-                  _currentPosition?.longitude ?? 103.25199289277295),
+              point: LatLng(senderLatitude!, senderLongitude!),
               child: Image.asset(
-                'assets/image/3077443.png',
+                'assets/image/sender_marker.png', // Use a different image for sender
                 width: 30,
                 height: 30,
               ),
             ),
-            // Add other markers for pickup and delivery locations
-          ],
-        ),
-      ],
-    );
-  }
+          // Receiver location marker
+          if (receiverLatitude != null && receiverLongitude != null)
+            Marker(
+              point: LatLng(receiverLatitude!, receiverLongitude!),
+              child: Image.asset(
+                'assets/image/receiver_marker.png', // Use a different image for receiver
+                width: 30,
+                height: 30,
+              ),
+            ),
+        ],
+      ),
+    ],
+  );
+}
+
 
   Widget _buildRecipientInfo() {
     return Padding(
@@ -367,32 +399,87 @@ class _WorkState extends State<Work> {
       ],
     );
   }
+late GetSender getSender; // อ็อบเจ็กต์เดียว
 
-  Future<void> Sender() async {
-    var response =
-        await http.get(Uri.parse('$server/GetUserid?id=${widget.senderid}'));
+Future<void> Sender() async {
+  try {
+    var response = await http.get(Uri.parse('$server/GetUserid?id=${widget.senderid}'));
 
     if (response.statusCode == 200) {
-      // แปลงข้อมูล JSON ที่ได้มา
-      var userData = jsonDecode(response.body);
-      log(userData.toString());
+      // log('Response body: ${response.body}');
+
+      // แปลงข้อมูล JSON ที่ได้รับ
+      var jsonData = jsonDecode(response.body);
+
+      // เช็คว่าเป็น List หรือ Map
+      if (jsonData is List) {
+        // log('Received a List: ${jsonData.toString()}');
+      } else if (jsonData is Map) {
+        log('Received a Map: ${jsonData.toString()}');
+      }
+
+      // ถ้าเป็น List คุณต้องทำการดึงข้อมูลผู้ใช้จากรายการ
+      if (jsonData is List && jsonData.isNotEmpty) {
+        getSender = GetSender.fromJson(jsonData[0]); // สมมติว่าเราต้องการผู้ใช้แรกในรายการ
+
+        // Split the location into latitude and longitude
+        List<String> locationParts = getSender.userLocation.split(',');
+        if (locationParts.length == 2) {
+          String latitude = locationParts[0].trim();
+          String longitude = locationParts[1].trim();
+
+          log('Sender latitude: $latitude');
+          log('Sender longitude: $longitude');
+        } else {
+          log('Invalid location format: ${getSender.userLocation}');
+        }
+      }
     } else {
-      // ถ้าการร้องขอไม่สำเร็จ
       log('Failed to load data: ${response.statusCode}');
     }
+  } catch (e) {
+    log('Error parsing data: $e');
   }
+}
+  
   Future<void> receiver() async {
-    var response =
-        await http.get(Uri.parse('$server/GetUserid?id=${widget.receiverId}'));
+  try {
+    var response = await http.get(Uri.parse('$server/GetUserid?id=${widget.receiverId}'));
 
     if (response.statusCode == 200) {
-      // แปลงข้อมูล JSON ที่ได้มา
-      var userData = jsonDecode(response.body);
-      log(userData.toString());
+      // แปลงข้อมูล JSON ที่ได้รับ
+      var jsonData = jsonDecode(response.body);
+
+      // เช็คว่าเป็น List หรือ Map
+      if (jsonData is List) {
+        // log('Received a List: ${jsonData.toString()}');
+      } else if (jsonData is Map) {
+        log('Received a Map: ${jsonData.toString()}');
+      }
+
+      // ถ้าเป็น List คุณต้องทำการดึงข้อมูลผู้ใช้จากรายการ
+      if (jsonData is List && jsonData.isNotEmpty) {
+        GetSender receiver = GetSender.fromJson(jsonData[0]); // สมมติว่าเราต้องการผู้ใช้แรกในรายการ
+
+        // Split the location into latitude and longitude
+        List<String> locationParts = receiver.userLocation.split(',');
+        if (locationParts.length == 2) {
+          String latitude = locationParts[0].trim();
+          String longitude = locationParts[1].trim();
+
+          log('Receiver latitude: $latitude');
+          log('Receiver longitude: $longitude');
+        } else {
+          log('Invalid location format: ${receiver.userLocation}');
+        }
+      }
     } else {
-      // ถ้าการร้องขอไม่สำเร็จ
       log('Failed to load data: ${response.statusCode}');
     }
+  } catch (e) {
+    log('Error parsing data: $e');
   }
+}
+
   
 }
