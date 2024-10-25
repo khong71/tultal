@@ -162,7 +162,7 @@ class _SenderState extends State<Sender> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('User ID: ${widget.userId}'), // Display userId
+              // Text('User ID: ${widget.userId}'), // Display userId
               if (selectedRecipient == null)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,10 +198,10 @@ class _SenderState extends State<Sender> {
                       children: filteredRecipients.map((recipient) {
                         // ใช้ filteredRecipients ที่ถูกกรอง
                         return ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage: AssetImage(recipient
-                                .image), // ตรวจสอบให้แน่ใจว่าฟิลด์นี้มีข้อมูล
-                          ),
+                          // leading: CircleAvatar(
+                          //   backgroundImage: AssetImage(recipient
+                          //       .image), // ตรวจสอบให้แน่ใจว่าฟิลด์นี้มีข้อมูล
+                          // ),
                           title: Text(recipient.name), // แสดงชื่อ
                           subtitle: Text(recipient.phone), // แสดงเบอร์โทรศัพท์
                           onTap: () {
@@ -228,10 +228,10 @@ class _SenderState extends State<Sender> {
                         child: Column(
                           children: [
                             ListTile(
-                              leading: CircleAvatar(
-                                backgroundImage:
-                                    AssetImage(selectedRecipient!.image),
-                              ),
+                              // leading: CircleAvatar(
+                              //   backgroundImage:
+                              //       AssetImage(selectedRecipient!.image),
+                              // ),
                               title: Text(selectedRecipient!.name),
                               subtitle: Text(selectedRecipient!.phone),
                               trailing: ElevatedButton(
@@ -376,25 +376,23 @@ class _SenderState extends State<Sender> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 40, vertical: 10),
                                 ),
-                                onPressed: () {
-                                  // Action for send button
-                                },
+                                onPressed: () => send(widget.userId,selectedRecipient!.userId),
                                 child: const Text('Send'),
                               ),
                             ),
                             const SizedBox(
                                 height:
                                     20), // เพิ่มพื้นที่ระหว่างปุ่มส่งและข้อความที่จะแสดง
-                            Align(
-                              alignment: Alignment.center,
-                              child: Text(
-                                'Your ID: ${widget.userId}\n'
-                                'sender ID: ${selectedRecipient!.userId}',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 16, color: Colors.black),
-                              ),
-                            ),
+                            // Align(
+                            //   alignment: Alignment.center,
+                            //   child: Text(
+                            //     'Your ID: ${widget.userId}\n'
+                            //     'sender ID: ${selectedRecipient!.userId}',
+                            //     textAlign: TextAlign.center,
+                            //     style: TextStyle(
+                            //         fontSize: 16, color: Colors.black),
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),
@@ -496,53 +494,51 @@ class _SenderState extends State<Sender> {
   }
 
   void send(int sender, int receiver) async {
-    String info = _descriptionController.text;
-    String img =
-        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5VQuMrASnyK_TSUPFWPOTzIMw0L6XDYbqcg&s'; // Using null-aware operator
+  String info = _descriptionController.text;
+  String img = 'https://www.pier.or.th/static/b80287053b2f7197c3012c36b23667f9/e390d/cover.jpg';
 
-    // Validate input
-    if (info.isEmpty) {
-      _showDetailErrorDialog();
-      log('Error: Order info cannot be empty');
-      return;
-    }
+  // Validate input
+  if (info.isEmpty) {
+    _showDetailErrorDialog();
+    log('Error: Order info cannot be empty');
+    return;
+  }
 
-    // Create the PostOrder object
-    var data = PostOrder(
-      orderImage: img,
-      orderInfo: info,
-      orderSenderId: sender.toString(),
-      orderReceiverId: receiver.toString(),
+  // Create the PostOrder object
+  var data = PostOrder(
+    orderImage: img,
+    orderInfo: info,
+    orderSenderId: sender.toString(),
+    orderReceiverId: receiver.toString(),
+  );
+
+  // Log the PostOrder data
+  log('PostOrder data: '
+      'Order Image: ${data.orderImage}, '
+      'Order Info: ${data.orderInfo}, '
+      'Sender ID: ${data.orderSenderId}, '
+      'Receiver ID: ${data.orderReceiverId}');
+
+  // Sending the POST request
+  try {
+    final response = await http.post(
+      Uri.parse('$server/insertOrder'),
+      headers: {"Content-Type": "application/json; charset=utf-8"},
+      body: json.encode(data.toJson()),
     );
 
-    // Log the PostOrder data
-    log('PostOrder data: '
-        'Order Image: ${data.orderImage}, '
-        'Order Info: ${data.orderInfo}, '
-        'Sender ID: ${data.orderSenderId}, '
-        'Receiver ID: ${data.orderReceiverId}');
-
-    // Sending the POST request
-    try {
-      final response = await http.post(
-        Uri.parse('$server/insertOrder'),
-        headers: {"Content-Type": "application/json; charset=utf-8"},
-        body: json.encode(data.toJson()),
-      );
-
-      // Check the response status code
-      if (response.statusCode == 200) {
-        log('Order sent successfully: ${response.body}');
-
-        // Show the popup to confirm the order was successful
-        _showSuccessDialog();
-      } else {
-        log('Failed to send order: ${response.statusCode}, ${response.body}');
-      }
-    } catch (e) {
-      log('Error sending order: $e');
+    // Check the response status code
+    if (response.statusCode == 200) {
+      log('Order sent successfully: ${response.body}');
+      _showSuccessDialog();
+    } else {
+      log('Failed to send order: ${response.statusCode}, ${response.body}');
     }
+  } catch (e) {
+    log('Error sending order: $e');
   }
+}
+
 
   // ฟังก์ชันสำหรับอัพโหลดภาพไปยัง Firebase Storage
 

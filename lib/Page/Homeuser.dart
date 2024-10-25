@@ -32,12 +32,6 @@ class _HomeuserState extends State<Homeuser> {
               backgroundColor: const Color(0xFFE2DBBF),
               title: GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            Profilepage(userId: widget.userId)),
-                  );
                 },
                 child: Row(
                   children: [

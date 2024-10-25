@@ -101,12 +101,6 @@ class _HomeraiderState extends State<Homeraider> {
                   'https://static-00.iconduck.com/assets.00/profile-circle-icon-2048x2048-cqe5466q.png'),
             ),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        Profileraider(raiderId: widget.raiderId)),
-              );
             },
           ),
           title: const Text('Hello, raider',

@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages, non_constant_identifier_names, deprecated_member_use
+
 import 'dart:convert';
 import 'dart:developer';
 
@@ -41,6 +43,10 @@ class _CheckstatusState extends State<Checkstatus> {
   String? receiverImage;
   LatLng? receiverLocation;
   String server = '';
+
+  double? Rlat;
+  double? Rlong;
+
   @override
   void initState() {
     super.initState();
@@ -49,13 +55,14 @@ class _CheckstatusState extends State<Checkstatus> {
 
     Config.getConfig().then(
       (value) {
-        log(value['serverAPI']); // แสดงค่าใน log สำหรับการ debug
+        log(value['serverAPI']); // Debug log
         setState(() {
-          server = value['serverAPI']; // อัปเดตค่า server
+          server = value['serverAPI']; // Update the server variable
         });
+        // Fetch receiver info only after the server URL is set
+        _fetchReceiver(widget.orderReceiverId);
       },
     );
-    receiver();
   }
 
   void _getCurrentLocation() async {
@@ -194,14 +201,11 @@ class _CheckstatusState extends State<Checkstatus> {
                 height: 30,
               ),
             ),
-            if (receiverLocation !=
-                null) // Only add marker if location is available
+            if (Rlat != null && Rlong != null)
               Marker(
-                point: receiverLocation!,
-                child: const Icon(
-                  Icons.person, // Icon for the user marker
-                  size: 30, // Set the size of the icon
-                  color: Colors.red, // Set the color of the icon
+                point: LatLng(Rlat!, Rlong!),
+                child: Container( // Background color for visibility
+                  child: Icon(Icons.add_box, size: 40), // Change icon size and color
                 ),
               ),
           ],
@@ -218,68 +222,71 @@ class _CheckstatusState extends State<Checkstatus> {
         children: [
           Text("Order Info: ${utf8.decode(widget.orderInfo.codeUnits)}"),
           const SizedBox(height: 8),
-          Image.network(widget.orderImage),
+          
           const SizedBox(height: 8),
-          Text("User Name: ${widget.userName}"),
-          Text("User Phone: ${widget.userPhone}"),
-          Image.network(
-            widget.userImage,
-            width: 100, // Adjust the width as needed
-            height: 100, // Adjust the height as needed
-            fit: BoxFit.cover,
-          ),
+          Text("Name: ${widget.userName}"),
+          Text("Phone: ${widget.userPhone}"),
+          // Image.network(
+          //   widget.userImage,
+          //   width: 100, // Adjust the width as needed
+          //   height: 100, // Adjust the height as needed
+          //   fit: BoxFit.cover,
+          // ),
           const SizedBox(height: 8),
-          Text(
-              "Order Receiver ID: ${widget.orderReceiverId}"), // Display the order receiver ID
           const SizedBox(height: 8),
           if (receiverName != null) Text("Receiver Name: $receiverName"),
-          if (receiverPhone != null) Text("Receiver Phone: $receiverPhone"),
-          if (receiverImage != null)
-            Image.network(receiverImage!,
-                width: 100, height: 100, fit: BoxFit.cover),
+          if (receiverPhone != null) Text("Receiver Phone: $receiverPhone") 
         ],
       ),
     );
   }
 
-  Future<void> receiver() async {
-    try {
-      var response = await http
-          .get(Uri.parse('$server/GetUserid?id=${widget.orderReceiverId}'));
+  Future<void> _fetchReceiver(int receiverId) async {
+  try {
+    final response = await http.get(
+      Uri.parse('$server/GetUserid?id=$receiverId'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
 
-      if (response.statusCode == 200) {
-        // แปลงข้อมูล JSON ที่ได้รับ
-        var jsonData = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      // แปลงข้อมูล JSON ที่ได้รับ
+      var jsonData = jsonDecode(response.body);
 
-        // เช็คว่าเป็น List หรือ Map
-        if (jsonData is List) {
-          // log('Received a List: ${jsonData.toString()}');
-        } else if (jsonData is Map) {
-          log('Received a Map: ${jsonData.toString()}');
-        }
-
-        // ถ้าเป็น List คุณต้องทำการดึงข้อมูลผู้ใช้จากรายการ
-        if (jsonData is List && jsonData.isNotEmpty) {
-          GetSender receiver = GetSender.fromJson(
-              jsonData[0]); // สมมติว่าเราต้องการผู้ใช้แรกในรายการ
-
-          // Split the location into latitude and longitude
-          List<String> locationParts = receiver.userLocation.split(',');
-          if (locationParts.length == 2) {
-            String latitude = locationParts[0].trim();
-            String longitude = locationParts[1].trim();
-
-            log('Receiver latitude: $latitude');
-            log('Receiver longitude: $longitude');
-          } else {
-            log('Invalid location format: ${receiver.userLocation}');
-          }
-        }
-      } else {
-        log('Failed to load data: ${response.statusCode}');
+      // เช็คว่าเป็น List หรือ Map
+      if (jsonData is List) {
+        // log('Received a List: ${jsonData.toString()}');
+      } else if (jsonData is Map) {
+        log('Received a Map: ${jsonData.toString()}');
       }
-    } catch (e) {
-      log('Error parsing data: $e');
+
+      // ถ้าเป็น List คุณต้องทำการดึงข้อมูลผู้ใช้จากรายการ
+      if (jsonData is List && jsonData.isNotEmpty) {
+        GetSender receiver = GetSender.fromJson(jsonData[0]); // สมมติว่าเราต้องการผู้ใช้แรกในรายการ
+
+        // Split the location into latitude and longitude
+        List<String> locationParts = receiver.userLocation.split(',');
+        if (locationParts.length == 2) {
+          String latitude = locationParts[0].trim();
+          String longitude = locationParts[1].trim();
+
+          log('Receiver latitude: $latitude');
+          log('Receiver longitude: $longitude');
+          setState(() {
+            Rlat = double.tryParse(latitude);
+            Rlong = double.tryParse(longitude);
+          });
+        } else {
+          log('Invalid location format: ${receiver.userLocation}');
+        }
+      }
+    } else {
+      log('Failed to load data: ${response.statusCode}');
     }
+  } catch (e) {
+    log('Error fetching receiver info: $e');
   }
+}
+
 }
