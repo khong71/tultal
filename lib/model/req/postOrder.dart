@@ -13,12 +13,14 @@ class PostOrder {
     String orderInfo;
     String orderSenderId;
     String orderReceiverId;
+    String status;
 
     PostOrder({
         required this.orderImage,
         required this.orderInfo,
         required this.orderSenderId,
         required this.orderReceiverId,
+        required this.status,
     });
 
     factory PostOrder.fromJson(Map<String, dynamic> json) => PostOrder(
@@ -26,6 +28,7 @@ class PostOrder {
         orderInfo: json["order_info"],
         orderSenderId: json["order_sender_id"],
         orderReceiverId: json["order_receiver_id"],
+        status: json["status"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -33,5 +36,6 @@ class PostOrder {
         "order_info": orderInfo,
         "order_sender_id": orderSenderId,
         "order_receiver_id": orderReceiverId,
+        "status": status,
     };
 }

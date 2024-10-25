@@ -1,6 +1,10 @@
 // ignore_for_file: depend_on_referenced_packages, non_constant_identifier_names, deprecated_member_use
 
+// ignore_for_file: depend_on_referenced_packages, non_constant_identifier_names, deprecated_member_use
+
 import 'dart:convert';
+import 'dart:developer';
+
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -9,6 +13,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'package:tultal/Page/Homeuser.dart';
+import 'package:tultal/config/config.dart';
+import 'package:tultal/model/res/getSender.dart';
 import 'package:tultal/config/config.dart';
 import 'package:tultal/model/res/getSender.dart';
 
@@ -46,12 +52,27 @@ class _CheckstatusState extends State<Checkstatus> {
 
   double? Rlat;
   double? Rlong;
+  String server = '';
+
+  double? Rlat;
+  double? Rlong;
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
     _fetchReceiverInfo(widget.orderReceiverId); // Fetch receiver info
+
+    Config.getConfig().then(
+      (value) {
+        log(value['serverAPI']); // Debug log
+        setState(() {
+          server = value['serverAPI']; // Update the server variable
+        });
+        // Fetch receiver info only after the server URL is set
+        _fetchReceiver(widget.orderReceiverId);
+      },
+    );
 
     Config.getConfig().then(
       (value) {
@@ -136,7 +157,7 @@ class _CheckstatusState extends State<Checkstatus> {
         ),
         body: Column(
           children: [
-            _buildStatusStepper(),
+            // _buildStatusStepper(),
             Expanded(child: _buildMap()),
             _buildOrderInfo(), // Display order information below the map
           ],
@@ -145,20 +166,20 @@ class _CheckstatusState extends State<Checkstatus> {
     );
   }
 
-  Widget _buildStatusStepper() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _buildStatusIcon('On the way', 0),
-          _buildStatusIcon('Picked up', 1),
-          _buildStatusIcon('At destination', 2),
-          _buildStatusIcon('Delivered', 3),
-        ],
-      ),
-    );
-  }
+  // Widget _buildStatusStepper() {
+  //   return Padding(
+  //     padding: const EdgeInsets.all(8.0),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         _buildStatusIcon('On the way', 0),
+  //         _buildStatusIcon('Picked up', 1),
+  //         _buildStatusIcon('At destination', 2),
+  //         _buildStatusIcon('Delivered', 3),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildStatusIcon(String label, int step) {
     return Column(
@@ -195,17 +216,16 @@ class _CheckstatusState extends State<Checkstatus> {
                 _currentPosition?.latitude ?? 16.246825669508297,
                 _currentPosition?.longitude ?? 103.25199289277295,
               ),
-              child: Image.asset(
-                'assets/image/3077443.png',
-                width: 30,
-                height: 30,
-              ),
+              child: Icon(Icons.person),
             ),
             if (Rlat != null && Rlong != null)
+            if (Rlat != null && Rlong != null)
               Marker(
-                point: LatLng(Rlat!, Rlong!),
-                child: Container( // Background color for visibility
-                  child: Icon(Icons.add_box, size: 40), // Change icon size and color
+                point: receiverLocation!,
+                child: const Icon(
+                  Icons.person, // Icon for the user marker
+                  size: 30, // Set the size of the icon
+                  color: Colors.red, // Set the color of the icon
                 ),
               ),
           ],
@@ -224,6 +244,14 @@ class _CheckstatusState extends State<Checkstatus> {
           const SizedBox(height: 8),
           
           const SizedBox(height: 8),
+          Text("Name: ${widget.userName}"),
+          Text("Phone: ${widget.userPhone}"),
+          // Image.network(
+          //   widget.userImage,
+          //   width: 100, // Adjust the width as needed
+          //   height: 100, // Adjust the height as needed
+          //   fit: BoxFit.cover,
+          // ),
           Text("Name: ${widget.userName}"),
           Text("Phone: ${widget.userPhone}"),
           // Image.network(

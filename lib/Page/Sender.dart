@@ -228,10 +228,10 @@ class _SenderState extends State<Sender> {
                         child: Column(
                           children: [
                             ListTile(
-                              // leading: CircleAvatar(
-                              //   backgroundImage:
-                              //       AssetImage(selectedRecipient!.image),
-                              // ),
+                              leading: CircleAvatar(
+                                backgroundImage:
+                                    AssetImage(selectedRecipient!.image),
+                              ),
                               title: Text(selectedRecipient!.name),
                               subtitle: Text(selectedRecipient!.phone),
                               trailing: ElevatedButton(
@@ -376,7 +376,9 @@ class _SenderState extends State<Sender> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 40, vertical: 10),
                                 ),
-                                onPressed: () => send(widget.userId,selectedRecipient!.userId),
+                                onPressed: () {
+                                  // Action for send button
+                                },
                                 child: const Text('Send'),
                               ),
                             ),
@@ -504,13 +506,13 @@ class _SenderState extends State<Sender> {
     return;
   }
 
-  // Create the PostOrder object
-  var data = PostOrder(
-    orderImage: img,
-    orderInfo: info,
-    orderSenderId: sender.toString(),
-    orderReceiverId: receiver.toString(),
-  );
+    // Create the PostOrder object
+    var data = PostOrder(
+      orderImage: img,
+      orderInfo: info,
+      orderSenderId: sender.toString(),
+      orderReceiverId: receiver.toString(),
+    );
 
   // Log the PostOrder data
   log('PostOrder data: '
