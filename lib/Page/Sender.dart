@@ -199,7 +199,7 @@ class _SenderState extends State<Sender> {
                         // ใช้ filteredRecipients ที่ถูกกรอง
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundImage: AssetImage(recipient
+                            backgroundImage: NetworkImage(recipient
                                 .image), // ตรวจสอบให้แน่ใจว่าฟิลด์นี้มีข้อมูล
                           ),
                           title: Text(recipient.name), // แสดงชื่อ
@@ -230,7 +230,7 @@ class _SenderState extends State<Sender> {
                             ListTile(
                               leading: CircleAvatar(
                                 backgroundImage:
-                                    AssetImage(selectedRecipient!.image),
+                                    NetworkImage(selectedRecipient!.image),
                               ),
                               title: Text(selectedRecipient!.name),
                               subtitle: Text(selectedRecipient!.phone),
@@ -377,7 +377,7 @@ class _SenderState extends State<Sender> {
                                       horizontal: 40, vertical: 10),
                                 ),
                                 onPressed: () {
-                                  // Action for send button
+                                  send(widget.userId, selectedRecipient!.userId);
                                 },
                                 child: const Text('Send'),
                               ),
@@ -513,6 +513,7 @@ class _SenderState extends State<Sender> {
       orderInfo: info,
       orderSenderId: sender.toString(),
       orderReceiverId: receiver.toString(),
+      status: '0'
     );
 
     // Log the PostOrder data
