@@ -20,7 +20,8 @@ class Receiver extends StatefulWidget {
 }
 
 class _ReceiverState extends State<Receiver> {
-  List<GetOrdersreceiverList> orders = []; // สร้าง List สำหรับเก็บข้อมูลที่ได้จาก API
+  List<GetOrdersreceiverList> orders =
+      []; // สร้าง List สำหรับเก็บข้อมูลที่ได้จาก API
   bool isLoading = true; // สถานะการโหลดข้อมูล
   String server = '';
 
@@ -46,7 +47,8 @@ class _ReceiverState extends State<Receiver> {
     if (response.statusCode == 200) {
       // ถ้าการเรียก API สำเร็จ
       setState(() {
-        orders = getOrdersreceiverListFromJson(response.body); // แปลง JSON และเก็บใน List
+        orders = getOrdersreceiverListFromJson(
+            response.body); // แปลง JSON และเก็บใน List
         isLoading = false; // เปลี่ยนสถานะการโหลดข้อมูล
       });
     } else {
@@ -90,7 +92,8 @@ class _ReceiverState extends State<Receiver> {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.exit_to_app, color: Colors.black, size: 30),
+              icon:
+                  const Icon(Icons.exit_to_app, color: Colors.black, size: 30),
               onPressed: () => signOut(context), // ฟังก์ชัน signOut
             ),
           ],
@@ -101,14 +104,14 @@ class _ReceiverState extends State<Receiver> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: isLoading
-              ? Center(child: CircularProgressIndicator()) // แสดง loading indicator
+              ? Center(child: CircularProgressIndicator())
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 16),
                     Expanded(
                       child: ListView.builder(
-                        itemCount: orders.length, // จำนวนรายการจาก API
+                        itemCount: orders.length,
                         itemBuilder: (context, index) {
                           final order = orders[index];
                           return Padding(
@@ -119,21 +122,37 @@ class _ReceiverState extends State<Receiver> {
                               ),
                               child: ListTile(
                                 leading: CircleAvatar(
-                                  backgroundImage: NetworkImage(order.userImage), // รูปผู้รับจากฐานข้อมูล
+                                  backgroundImage:
+                                      NetworkImage(order.userImage),
                                   radius: 25,
                                 ),
                                 title: Text(
-                                  order.userName, // ชื่อผู้รับจากฐานข้อมูล
+                                  order.userName,
                                   style: const TextStyle(fontSize: 18),
                                 ),
-                                subtitle: Text(order.userPhone), // เบอร์โทรจากฐานข้อมูล
+                                subtitle: Text(order.userPhone),
                                 trailing: ElevatedButton(
                                   onPressed: () {
-                                    
+                                    log('Order Receiver ID: ${order.orderReceiverId}');
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => Checkstatus(
+                                          userId: widget.userId,
+                                          orderInfo: order.orderInfo,
+                                          orderImage: order.orderImage,
+                                          userName: order.userName,
+                                          userPhone: order.userPhone,
+                                          userImage: order.userImage,
+                                          orderReceiverId:
+                                              order.orderReceiverId,
+                                        ),
+                                      ),
+                                    );
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.brown, // Brown for the button
-                                    foregroundColor: Colors.white, // White text
+                                    backgroundColor: Colors.brown,
+                                    foregroundColor: Colors.white,
                                   ),
                                   child: const Text('เช็ค'),
                                 ),

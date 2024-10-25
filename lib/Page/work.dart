@@ -17,16 +17,17 @@ import 'package:http/http.dart' as http;
 import 'package:tultal/model/res/getSender.dart';
 
 class Work extends StatefulWidget {
-  final int raiderId;
+ final int raiderId;
   final String senderid;
   final String receiverId;
   final int orderid;
-  const Work(
-      {super.key,
-      required this.raiderId,
-      required this.senderid,
-      required this.receiverId,
-      required this.orderid});
+
+  const Work({
+    required this.raiderId,
+    required this.senderid,
+    required this.receiverId,
+    required this.orderid,
+  });
 
   @override
   State<Work> createState() => _WorkState();
@@ -51,52 +52,49 @@ class _WorkState extends State<Work> {
   void initState() {
     super.initState();
 
-    Config.getConfig().then((value) {
-      log(value['serverAPI']); // Log server API for debugging
-      setState(() {
-        server = value['serverAPI']; // Update server URL
-      });
-
-      // Call Sender and receiver after server is set
-      Sender(widget.senderid);
-      receiver(widget.receiverId);
-    }).catchError((error) {
-      log('Error getting config: $error');
-    });
+    Config.getConfig().then(
+      (value) {
+        log(value['serverAPI']); // แสดงค่าใน log สำหรับการ debug
+        setState(() {
+          server = value['serverAPI']; // อัปเดตค่า server
+        });
+      },
+    );
   }
 
   void _getCurrentLocation() async {
-    try {
-      Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
-      if (mounted) {
-        setState(() {
-          _currentPosition = position;
-        });
-      }
-    } catch (e) {
-      // Handle location error
-      log('Location error: $e');
-      // Default position can be set as fallback
-      if (mounted) {
-        setState(() {
-          _currentPosition = Position(
-            latitude: 16.246825669508297,
-            longitude: 103.25199289277295,
-            timestamp: DateTime.now(),
-            accuracy: 0,
-            altitude: 0,
-            altitudeAccuracy: 0,
-            heading: 0,
-            headingAccuracy: 0,
-            speed: 0,
-            speedAccuracy: 0,
-            isMocked: false,
-          );
-        });
-      }
+  try {
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    if (mounted) {
+      setState(() {
+        _currentPosition = position;
+      });
+    }
+  } catch (e) {
+    // Handle location error
+    log('Location error: $e');
+    // Default position can be set as fallback
+    if (mounted) {
+      setState(() {
+        _currentPosition = Position(
+          latitude: 16.246825669508297,
+          longitude: 103.25199289277295,
+          timestamp: DateTime.now(),
+          accuracy: 0,
+          altitude: 0,
+          altitudeAccuracy: 0,
+          heading: 0,
+          headingAccuracy: 0,
+          speed: 0,
+          speedAccuracy: 0,
+          isMocked: false,
+        );
+      });
     }
   }
+}
+
 
   // Function to update status and turtle position
   void _updateStatus(int newStatus) {
@@ -108,71 +106,13 @@ class _WorkState extends State<Work> {
   // Image picker function
   Future<void> _pickImage(bool isPickup) async {
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-    setState(() async {
+    setState(() {
       if (isPickup) {
-        pickupImage = image; // Assign the picked image to the variable
-
-        // Create the URL for the PUT request
-        var url = Uri.parse('$server/Putstatus?id=${widget.orderid}');
-
-        // Prepare the request body
-        var requestBody = {
-          "drive_image1":
-              "https://e7.pngegg.com/pngimages/317/149/png-clipart-gratis-price-silhouette-mail-order-others-child-hand.png", // Example value, replace with actual user data if needed
-          "drive_image2":
-              "", // Example value, replace with actual image data if needed
-          "drive_status": "2", // Status code for pickup
-        };
-
-        // Send the PUT request
-        var res = await http.put(
-          url,
-          body: jsonEncode(requestBody), // Encode the body to JSON
-          headers: {
-            'Content-Type': 'application/json', // Set content type for JSON
-          },
-        );
-
-        // Check the response status
-        if (res.statusCode == 200) {
-          _updateStatus(
-              1); // Update status in the app if the request is successful
-        } else {
-          // Handle unsuccessful update
-          print(
-              'Failed to update order status: ${res.statusCode} - ${res.body}');
-        }
+        pickupImage = image;
+        _updateStatus(1); // Automatically update status after pickup image
       } else {
         deliveryImage = image;
-        // Create the URL for the PUT request
-        var url = Uri.parse('$server/Putstatus?id=${widget.orderid}');
-
-        // Prepare the request body
-        var requestBody = {
-          "drive_image1":
-              "https://e7.pngegg.com/pngimages/317/149/png-clipart-gratis-price-silhouette-mail-order-others-child-hand.png", // Example value, replace with actual user data if needed
-          "drive_image2":
-              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4ziUxQV7OU-h6oiCwZotYw4f5nVRe12TNdA&s", // Example value, replace with actual image data if needed
-          "drive_status": "3", // Status code for pickup
-        };
-
-        // Send the PUT request
-        var res = await http.put(
-          url,
-          body: jsonEncode(requestBody), // Encode the body to JSON
-          headers: {
-            'Content-Type': 'application/json', // Set content type for JSON
-          },
-        );
-
-        // Check the response status
-        if (res.statusCode == 200) {
-          _updateStatus(2); // Automatically update status after delivery image
-        } else {
-          // Handle unsuccessful update
-          print(
-              'Failed to update order status: ${res.statusCode} - ${res.body}');
-        }
+        _updateStatus(2); // Automatically update status after delivery image
       }
     });
   }
@@ -242,56 +182,55 @@ class _WorkState extends State<Work> {
   }
 
   Widget _buildMap() {
-    return Expanded(
-      child: FlutterMap(
-        options: MapOptions(
-          initialCenter: LatLng(
-            _currentPosition?.latitude ?? 16.246825669508297,
-            _currentPosition?.longitude ?? 103.25199289277295,
+  return FlutterMap(
+    options: MapOptions(
+      initialCenter: LatLng(_currentPosition?.latitude ?? 16.246825669508297,
+          _currentPosition?.longitude ?? 103.25199289277295),
+      initialZoom: 15.0,
+    ),
+    children: [
+      TileLayer(
+        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        subdomains: const ['a', 'b', 'c'],
+      ),
+      MarkerLayer(
+        markers: [
+          // Current location marker
+          Marker(
+            point: LatLng(_currentPosition?.latitude ?? 16.246825669508297,
+                _currentPosition?.longitude ?? 103.25199289277295),
+            child: Image.asset(
+              'assets/image/3077443.png',
+              width: 30,
+              height: 30,
+            ),
           ),
-          initialZoom: 15.0,
-        ),
-        children: [
-          TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            subdomains: ['a', 'b', 'c'],
-          ),
-          MarkerLayer(
-            markers: [
-              // Current location marker
-              Marker(
-                point: LatLng(
-                  _currentPosition?.latitude ?? 16.246825669508297,
-                  _currentPosition?.longitude ?? 103.25199289277295,
-                ),
-                child: Image.asset(
-                  'assets/image/3077443.png', // Your marker for current location
-                  width: 30,
-                  height: 30,
-                ),
+          // Sender location marker
+          if (senderLatitude != null && senderLongitude != null)
+            Marker(
+              point: LatLng(senderLatitude!, senderLongitude!),
+              child: Image.asset(
+                'assets/image/sender_marker.png', // Use a different image for sender
+                width: 30,
+                height: 30,
               ),
-              // Sender location marker
-              if (senderLatitude != null && senderLongitude != null)
-                Marker(
-                  point: LatLng(senderLatitude!, senderLongitude!),
-                  child: Icon(Icons.add_box,
-                      size: 40,
-                      color: Colors.green), // Change icon size and color
-                ),
-              // Receiver location marker
-              if (receiverLatitude != null && receiverLongitude != null)
-                Marker(
-                  point: LatLng(receiverLatitude!, receiverLongitude!),
-                  child: Icon(Icons.person,
-                      size: 40,
-                      color: Colors.red), // Change icon size and color
-                ),
-            ],
-          ),
+            ),
+          // Receiver location marker
+          if (receiverLatitude != null && receiverLongitude != null)
+            Marker(
+              point: LatLng(receiverLatitude!, receiverLongitude!),
+              child: Image.asset(
+                'assets/image/receiver_marker.png', // Use a different image for receiver
+                width: 30,
+                height: 30,
+              ),
+            ),
         ],
       ),
-    );
-  }
+    ],
+  );
+}
+
 
   Widget _buildRecipientInfo() {
     return Padding(
@@ -301,12 +240,19 @@ class _WorkState extends State<Work> {
         children: [
           Row(
             children: [
+              Icon(
+                Icons.person,
+                size: 50,
+              ),
               Expanded(
                 // ใช้ Expanded เพื่อให้ Text ใช้พื้นที่ได้เต็มที่
                 child: Column(
                   crossAxisAlignment:
                       CrossAxisAlignment.start, // Align to start
                   children: [
+                    Text(
+                        'Recipient: John Doe'), // คุณสามารถปรับให้แสดงชื่อที่ถูกต้องได้
+                    Text('Phone: 0800000000'), // แสดงหมายเลขโทรศัพท์
                     Text('Raider ID: ${widget.raiderId}'), // แสดง Raider ID
                     Text('Sender ID: ${widget.senderid}'), // แสดง Sender ID
                     Text(
@@ -411,43 +357,13 @@ class _WorkState extends State<Work> {
                             'Do you want to return to the homepage?'),
                         actions: <Widget>[
                           TextButton(
-                            onPressed: () async {
-                              var url = Uri.parse(
-                                  '$server/Putstatus?id=${widget.orderid}');
-
-                              // Prepare the request body
-                              var requestBody = {
-                                "drive_image1":
-                                    "https://e7.pngegg.com/pngimages/317/149/png-clipart-gratis-price-silhouette-mail-order-others-child-hand.png", // Example value, replace with actual user data if needed
-                                "drive_image2":
-                                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4ziUxQV7OU-h6oiCwZotYw4f5nVRe12TNdA&s", // Example value, replace with actual image data if needed
-                                "drive_status": "3", // Status code for pickup
-                              };
-
-                              // Send the PUT request
-                              var res = await http.put(
-                                url,
-                                body: jsonEncode(
-                                    requestBody), // Encode the body to JSON
-                                headers: {
-                                  'Content-Type':
-                                      'application/json', // Set content type for JSON
-                                },
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        Homeraider(raiderId: widget.raiderId)),
                               );
-
-                              // Check the response status
-                              if (res.statusCode == 200) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Homeraider(
-                                          raiderId: widget.raiderId)),
-                                );
-                              } else {
-                                // Handle unsuccessful update
-                                print(
-                                    'Failed to update order status: ${res.statusCode} - ${res.body}');
-                              }
                             },
                             child: const Text('Ok'),
                           ),
@@ -456,6 +372,14 @@ class _WorkState extends State<Work> {
                               Navigator.of(context).pop(); // Close the dialog
                             },
                             child: const Text('Cancle'),
+                          ),
+                          TextButton(
+                            onPressed: () => Sender(),
+                            child: const Text('Sender'),
+                          ),
+                          TextButton(
+                            onPressed: () => receiver(),
+                            child: const Text('receiver'),
                           ),
                         ],
                       );
@@ -475,87 +399,87 @@ class _WorkState extends State<Work> {
       ],
     );
   }
+late GetSender getSender; // อ็อบเจ็กต์เดียว
 
-  late GetSender getSender; // อ็อบเจ็กต์เดียว
+Future<void> Sender() async {
+  try {
+    var response = await http.get(Uri.parse('$server/GetUserid?id=${widget.senderid}'));
 
-  Future<void> Sender(String senderid) async {
-    try {
-      var response =
-          await http.get(Uri.parse('$server/GetUserid?id=$senderid'));
+    if (response.statusCode == 200) {
+      // log('Response body: ${response.body}');
 
-      if (response.statusCode == 200) {
-        var jsonData = jsonDecode(response.body);
+      // แปลงข้อมูล JSON ที่ได้รับ
+      var jsonData = jsonDecode(response.body);
 
-        if (jsonData is List && jsonData.isNotEmpty) {
-          getSender = GetSender.fromJson(jsonData[0]); // Get the first user
-
-          // Split the location into latitude and longitude
-          List<String> locationParts = getSender.userLocation.split(',');
-          if (locationParts.length == 2) {
-            String senderlatitude = locationParts[0].trim();
-            String senderlongitude = locationParts[1].trim();
-
-            log('Sender latitude: $senderlatitude');
-            log('Sender longitude: $senderlongitude');
-
-            // Update the state to reflect the new latitude and longitude
-            setState(() {
-              senderLatitude = double.tryParse(senderlatitude);
-              senderLongitude = double.tryParse(senderlongitude);
-            });
-          } else {
-            log('Invalid location format: ${getSender.userLocation}');
-          }
-        }
-      } else {
-        log('Failed to load data: ${response.statusCode}');
+      // เช็คว่าเป็น List หรือ Map
+      if (jsonData is List) {
+        // log('Received a List: ${jsonData.toString()}');
+      } else if (jsonData is Map) {
+        log('Received a Map: ${jsonData.toString()}');
       }
-    } catch (e) {
-      log('Error parsing data: $e');
-    }
-  }
 
-  Future<void> receiver(String receiverId) async {
-    try {
-      var response =
-          await http.get(Uri.parse('$server/GetUserid?id=$receiverId'));
+      // ถ้าเป็น List คุณต้องทำการดึงข้อมูลผู้ใช้จากรายการ
+      if (jsonData is List && jsonData.isNotEmpty) {
+        getSender = GetSender.fromJson(jsonData[0]); // สมมติว่าเราต้องการผู้ใช้แรกในรายการ
 
-      if (response.statusCode == 200) {
-        // Parse the JSON response
-        var jsonData = jsonDecode(response.body);
+        // Split the location into latitude and longitude
+        List<String> locationParts = getSender.userLocation.split(',');
+        if (locationParts.length == 2) {
+          String latitude = locationParts[0].trim();
+          String longitude = locationParts[1].trim();
 
-        // Check if the response is a List or Map
-        if (jsonData is List && jsonData.isNotEmpty) {
-          GetSender receiver =
-              GetSender.fromJson(jsonData[0]); // Get the first user
-
-          // Split the location into latitude and longitude
-          List<String> locationParts = receiver.userLocation.split(',');
-          if (locationParts.length == 2) {
-            String receiverlatitude = locationParts[0].trim();
-            String receiverlongitude = locationParts[1].trim();
-
-            log('Receiver latitude: $receiverlatitude');
-            log('Receiver longitude: $receiverlongitude');
-
-            // Update the state to reflect the new latitude and longitude
-            setState(() {
-              receiverLatitude = double.tryParse(receiverlatitude) ??
-                  0.0; // Default to 0.0 if parsing fails
-              receiverLongitude = double.tryParse(receiverlongitude) ??
-                  0.0; // Default to 0.0 if parsing fails
-            });
-          } else {
-            log('Invalid location format: ${receiver.userLocation}');
-          }
+          log('Sender latitude: $latitude');
+          log('Sender longitude: $longitude');
         } else {
-          log('Received empty List or unexpected format: ${jsonData.toString()}');
+          log('Invalid location format: ${getSender.userLocation}');
         }
-      } else {
-        log('Failed to load data: ${response.statusCode}');
       }
-    } catch (e) {
-      log('Error parsing data: $e');
+    } else {
+      log('Failed to load data: ${response.statusCode}');
     }
+  } catch (e) {
+    log('Error parsing data: $e');
   }
+}
+  
+  Future<void> receiver() async {
+  try {
+    var response = await http.get(Uri.parse('$server/GetUserid?id=${widget.receiverId}'));
+
+    if (response.statusCode == 200) {
+      // แปลงข้อมูล JSON ที่ได้รับ
+      var jsonData = jsonDecode(response.body);
+
+      // เช็คว่าเป็น List หรือ Map
+      if (jsonData is List) {
+        // log('Received a List: ${jsonData.toString()}');
+      } else if (jsonData is Map) {
+        log('Received a Map: ${jsonData.toString()}');
+      }
+
+      // ถ้าเป็น List คุณต้องทำการดึงข้อมูลผู้ใช้จากรายการ
+      if (jsonData is List && jsonData.isNotEmpty) {
+        GetSender receiver = GetSender.fromJson(jsonData[0]); // สมมติว่าเราต้องการผู้ใช้แรกในรายการ
+
+        // Split the location into latitude and longitude
+        List<String> locationParts = receiver.userLocation.split(',');
+        if (locationParts.length == 2) {
+          String latitude = locationParts[0].trim();
+          String longitude = locationParts[1].trim();
+
+          log('Receiver latitude: $latitude');
+          log('Receiver longitude: $longitude');
+        } else {
+          log('Invalid location format: ${receiver.userLocation}');
+        }
+      }
+    } else {
+      log('Failed to load data: ${response.statusCode}');
+    }
+  } catch (e) {
+    log('Error parsing data: $e');
+  }
+}
+
+  
 }
