@@ -27,9 +27,6 @@ class _HomeraiderState extends State<Homeraider> {
 
   late Future<void> loadData;
 
-  String senderId = ''; // กำหนดค่าให้กับ senderId
-  String receiverId = ''; // กำหนดค่าให้กับ receiverId
-  int orderId = 0; // กำหนดค่าให้กับ orderId
 
   String server = '';
   @override
