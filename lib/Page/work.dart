@@ -282,6 +282,8 @@ class _WorkState extends State<Work> {
     );
   }
 
+  
+
   Widget _buildRecipientInfo() {
     return Padding(
       padding: EdgeInsets.all(8.0),
@@ -300,9 +302,6 @@ class _WorkState extends State<Work> {
                   crossAxisAlignment:
                       CrossAxisAlignment.start, // Align to start
                   children: [
-                    Text(
-                        'Recipient: John Doe'), // คุณสามารถปรับให้แสดงชื่อที่ถูกต้องได้
-                    Text('Phone: 0800000000'), // แสดงหมายเลขโทรศัพท์
                     Text('Raider ID: ${widget.raiderId}'), // แสดง Raider ID
                     Text('Sender ID: ${widget.senderid}'), // แสดง Sender ID
                     Text(
