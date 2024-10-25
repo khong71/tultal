@@ -27,6 +27,9 @@ class _HomeraiderState extends State<Homeraider> {
 
   late Future<void> loadData;
 
+  String senderId = ''; // กำหนดค่าให้กับ senderId
+  String receiverId = ''; // กำหนดค่าให้กับ receiverId
+  int orderId = 0; // กำหนดค่าให้กับ orderId
 
   String server = '';
   @override
@@ -97,7 +100,14 @@ class _HomeraiderState extends State<Homeraider> {
               backgroundImage: NetworkImage(
                   'https://static-00.iconduck.com/assets.00/profile-circle-icon-2048x2048-cqe5466q.png'),
             ),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        Profileraider(raiderId: widget.raiderId)),
+              );
+            },
           ),
           title: const Text('Hello, raider',
               style: TextStyle(color: Colors.black)),
@@ -355,8 +365,7 @@ class _HomeraiderState extends State<Homeraider> {
                       backgroundColor: Colors.brown,
                     ),
                     onPressed: () async {
-                      await insertwork(
-                          info, widget.raiderId, senderid, receiverId, orderid);
+                      await insertwork(context,widget.raiderId,senderid,receiverId,orderid);
                     },
                     child: const Text('Job work',
                         style: TextStyle(color: Colors.white)),
@@ -392,38 +401,41 @@ class _HomeraiderState extends State<Homeraider> {
 
     log(orders.length.toString());
   }
+  
 
-  Future<void> insertwork(String info, int raiderId, String senderId,
-      String receiverId, int orderId) async {
+  Future<void> insertwork(BuildContext context, int raiderId, String senderId, String receiverId, int orderId) async {
+
     log(raiderId.toString());
-    var response = await http.post(
-      Uri.parse('$server/InsertDrive'),
-      body: {
-        'drive_image1': '',
-        'drive_image2': '',
-        'order_id': '$orderId',
-        'drive_status': '0',
-        'raider_id': '$raiderId',
-      },
-    );
+  var response = await http.post(
+    Uri.parse('$server/InsertDrive'),
+    body: {
+      'drive_image1': '',
+      'drive_image2': '',
+      'order_id': '$orderId',
+      'drive_status': '0',
+      'raider_id': '$raiderId',
+    },
+  );
 
-    if (response.statusCode == 200) {
-      // ถ้า insert สำเร็จ ทำการดำเนินการต่อ
-      print('Insert successful');
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Work(
-            raiderId: raiderId, // ต้องส่งค่าเป็น int
-            senderid: senderId, // ต้องส่งค่าเป็น String
-            receiverId: receiverId, // ต้องส่งค่าเป็น String
-            orderid: orderId, // ต้องส่งค่าเป็น int
-          ),
+  if (response.statusCode == 200) {
+    // ถ้า insert สำเร็จ ทำการดำเนินการต่อ
+    print('Insert successful');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Work(
+          raiderId: raiderId, // ต้องส่งค่าเป็น int
+          senderid: senderId, // ต้องส่งค่าเป็น String
+          receiverId: receiverId, // ต้องส่งค่าเป็น String
+          orderid: orderId, // ต้องส่งค่าเป็น int
         ),
-      );
-    } else {
-      // ถ้า insert ไม่สำเร็จ แสดง error message
-      print('Insert failed with status: ${response.statusCode}');
-    }
+      ),
+    );
+  } else {
+    // ถ้า insert ไม่สำเร็จ แสดง error message
+    print('Insert failed with status: ${response.statusCode}');
   }
+}
+
+
 }
