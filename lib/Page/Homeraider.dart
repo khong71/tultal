@@ -95,15 +95,6 @@ class _HomeraiderState extends State<Homeraider> {
         backgroundColor: const Color(0xFFEADABC),
         appBar: AppBar(
           backgroundColor: Colors.transparent,
-          leading: IconButton(
-            icon: const CircleAvatar(
-              backgroundImage: NetworkImage(
-                  'https://static-00.iconduck.com/assets.00/profile-circle-icon-2048x2048-cqe5466q.png'),
-            ),
-            onPressed: () {
-              
-            },
-          ),
           title: const Text('Hello, raider',
               style: TextStyle(color: Colors.black)),
         ),
@@ -188,7 +179,7 @@ class _HomeraiderState extends State<Homeraider> {
                 children: [
                   const CircleAvatar(
                     backgroundImage: NetworkImage(
-                        'https://static-00.iconduck.com/assets.00/profile-circle-icon-2048x2048-cqe5466q.png'), // Profile image
+                        'https://img.lovepik.com/free-png/20211119/lovepik-vector-cartoon-characters-png-image_401038641_wh1200.png'), // Profile image
                   ),
                   const SizedBox(width: 10), // ระยะห่างระหว่างรูปกับข้อความ
                   Expanded(
@@ -308,7 +299,7 @@ class _HomeraiderState extends State<Homeraider> {
               Column(
                 children: [
                   Image.network(
-                    'https://th.mlb-korea.com/cdn/shop/files/A_8809947353338_01_JPG_841af844-d94e-4cf4-8153-1b7ce2a50eab.jpg?v=1721013006',
+                    img,
                     width: 100,
                     height: 100,
                   ),

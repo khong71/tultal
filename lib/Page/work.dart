@@ -114,13 +114,62 @@ class _WorkState extends State<Work> {
   // Image picker function
   Future<void> _pickImage(bool isPickup) async {
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-    setState(() {
+    setState(() async {
       if (isPickup) {
         pickupImage = image;
-        _updateStatus(1); // Automatically update status after pickup image
+
+        var url = Uri.parse('$server/Putstatus?id=${widget.orderid}');
+
+        // Create the request body
+        var requestBody = {
+          "drive_image1":
+              "https://img.lovepik.com/free_png/32/49/18/79V58PICd6yd2XF6Uc758PIC58PIC_PIC2018.png_860.png",
+          "drive_image2": "",
+          "drive_status": "1"
+        };
+
+        // Make the PUT request
+        var res = await http.put(
+          url,
+          body: jsonEncode(requestBody), // Convert request body to JSON
+          headers: {
+            'Content-Type': 'application/json', // Set content type for JSON
+          },
+        );
+
+        // Check the response status of the PUT request
+        if (res.statusCode == 200) {
+          _updateStatus(1);
+        } else {
+          // Handle unsuccessful update
+          print('Failed to update order status: ${res.body}');
+        }
       } else {
         deliveryImage = image;
-        _updateStatus(2); // Automatically update status after delivery image
+
+        var url = Uri.parse('$server/Putstatus?id=${widget.orderid}');
+
+        var requestBody = {
+          "drive_image1":
+              "https://img.lovepik.com/free_png/32/49/18/79V58PICd6yd2XF6Uc758PIC58PIC_PIC2018.png_860.png",
+          "drive_image2":
+              "https://www.gopola.asia/images/ready-template/crop-1589354378793.jpg",
+          "drive_status": "2"
+        };
+
+        var res = await http.put(
+          url,
+          body: jsonEncode(requestBody),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        );
+
+        if (res.statusCode == 200) {
+          _updateStatus(2);
+        } else {
+          print('Failed to update order status: ${res.body}');
+        }
       }
     });
   }
@@ -225,9 +274,7 @@ class _WorkState extends State<Work> {
             if (receiverLatitude != null && receiverLongitude != null)
               Marker(
                 point: LatLng(receiverLatitude!, receiverLongitude!),
-                child: Icon(
-                  Icons.add_box
-                ),
+                child: Icon(Icons.add_box),
               ),
           ],
         ),
@@ -360,13 +407,37 @@ class _WorkState extends State<Work> {
                             'Do you want to return to the homepage?'),
                         actions: <Widget>[
                           TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        Homeraider(raiderId: widget.raiderId)),
+                            onPressed: () async {
+                              var url = Uri.parse(
+                                  '$server/Putstatus?id=${widget.orderid}');
+
+                              var requestBody = {
+                                "drive_image1":
+                                    "https://img.lovepik.com/free_png/32/49/18/79V58PICd6yd2XF6Uc758PIC58PIC_PIC2018.png_860.png",
+                                "drive_image2":
+                                    "https://www.gopola.asia/images/ready-template/crop-1589354378793.jpg",
+                                "drive_status": "3"
+                              };
+
+                              var res = await http.put(
+                                url,
+                                body: jsonEncode(requestBody),
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                },
                               );
+
+                              if (res.statusCode == 200) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Homeraider(
+                                          raiderId: widget.raiderId)),
+                                );
+                              } else {
+                                print(
+                                    'Failed to update order status: ${res.body}');
+                              }
                             },
                             child: const Text('Ok'),
                           ),
