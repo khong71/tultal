@@ -219,16 +219,33 @@ class _CheckstatusState extends State<Checkstatus> {
         children: [
           Text("Order Info: ${utf8.decode(widget.orderInfo.codeUnits)}"),
           const SizedBox(height: 8),
-
+          Image.network(
+            widget.orderImage,
+            width: 100, // Adjust the width as needed
+            height: 100, // Adjust the height as needed
+            fit: BoxFit.cover,
+          ),
           const SizedBox(height: 8),
-          Text("Name: ${widget.userName}"),
-          Text("Phone: ${widget.userPhone}"),
-          // Image.network(
-          //   widget.userImage,
-          //   width: 100, // Adjust the width as needed
-          //   height: 100, // Adjust the height as needed
-          //   fit: BoxFit.cover,
-          // ),
+          Row(
+            children: [
+              ClipOval(
+                child: Image.network(
+                  widget.userImage,
+                  width: 50, // Adjust the width as needed
+                  height: 50, // Adjust the height as needed
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(width: 16), // Add spacing between image and text
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Name: ${widget.userName}"),
+                  Text("Phone: ${widget.userPhone}"),
+                ],
+              ),
+            ],
+          ),
           const SizedBox(height: 8),
           const SizedBox(height: 8),
           if (receiverName != null) Text("Receiver Name: $receiverName"),
