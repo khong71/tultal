@@ -195,17 +195,14 @@ class _CheckstatusState extends State<Checkstatus> {
                 _currentPosition?.latitude ?? 16.246825669508297,
                 _currentPosition?.longitude ?? 103.25199289277295,
               ),
-              child: Image.asset(
-                'assets/image/3077443.png',
-                width: 30,
-                height: 30,
-              ),
+              child: Icon(Icons.person),
             ),
             if (Rlat != null && Rlong != null)
               Marker(
                 point: LatLng(Rlat!, Rlong!),
-                child: Container( // Background color for visibility
-                  child: Icon(Icons.add_box, size: 40), // Change icon size and color
+                child: Container(
+                  // Background color for visibility
+                  child: Icon(Icons.add_box), // Change icon size and color
                 ),
               ),
           ],
@@ -222,7 +219,7 @@ class _CheckstatusState extends State<Checkstatus> {
         children: [
           Text("Order Info: ${utf8.decode(widget.orderInfo.codeUnits)}"),
           const SizedBox(height: 8),
-          
+
           const SizedBox(height: 8),
           Text("Name: ${widget.userName}"),
           Text("Phone: ${widget.userPhone}"),
@@ -235,58 +232,58 @@ class _CheckstatusState extends State<Checkstatus> {
           const SizedBox(height: 8),
           const SizedBox(height: 8),
           if (receiverName != null) Text("Receiver Name: $receiverName"),
-          if (receiverPhone != null) Text("Receiver Phone: $receiverPhone") 
+          if (receiverPhone != null) Text("Receiver Phone: $receiverPhone")
         ],
       ),
     );
   }
 
   Future<void> _fetchReceiver(int receiverId) async {
-  try {
-    final response = await http.get(
-      Uri.parse('$server/GetUserid?id=$receiverId'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('$server/GetUserid?id=$receiverId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      // แปลงข้อมูล JSON ที่ได้รับ
-      var jsonData = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        // แปลงข้อมูล JSON ที่ได้รับ
+        var jsonData = jsonDecode(response.body);
 
-      // เช็คว่าเป็น List หรือ Map
-      if (jsonData is List) {
-        // log('Received a List: ${jsonData.toString()}');
-      } else if (jsonData is Map) {
-        log('Received a Map: ${jsonData.toString()}');
-      }
-
-      // ถ้าเป็น List คุณต้องทำการดึงข้อมูลผู้ใช้จากรายการ
-      if (jsonData is List && jsonData.isNotEmpty) {
-        GetSender receiver = GetSender.fromJson(jsonData[0]); // สมมติว่าเราต้องการผู้ใช้แรกในรายการ
-
-        // Split the location into latitude and longitude
-        List<String> locationParts = receiver.userLocation.split(',');
-        if (locationParts.length == 2) {
-          String latitude = locationParts[0].trim();
-          String longitude = locationParts[1].trim();
-
-          log('Receiver latitude: $latitude');
-          log('Receiver longitude: $longitude');
-          setState(() {
-            Rlat = double.tryParse(latitude);
-            Rlong = double.tryParse(longitude);
-          });
-        } else {
-          log('Invalid location format: ${receiver.userLocation}');
+        // เช็คว่าเป็น List หรือ Map
+        if (jsonData is List) {
+          // log('Received a List: ${jsonData.toString()}');
+        } else if (jsonData is Map) {
+          log('Received a Map: ${jsonData.toString()}');
         }
-      }
-    } else {
-      log('Failed to load data: ${response.statusCode}');
-    }
-  } catch (e) {
-    log('Error fetching receiver info: $e');
-  }
-}
 
+        // ถ้าเป็น List คุณต้องทำการดึงข้อมูลผู้ใช้จากรายการ
+        if (jsonData is List && jsonData.isNotEmpty) {
+          GetSender receiver = GetSender.fromJson(
+              jsonData[0]); // สมมติว่าเราต้องการผู้ใช้แรกในรายการ
+
+          // Split the location into latitude and longitude
+          List<String> locationParts = receiver.userLocation.split(',');
+          if (locationParts.length == 2) {
+            String latitude = locationParts[0].trim();
+            String longitude = locationParts[1].trim();
+
+            log('Receiver latitude: $latitude');
+            log('Receiver longitude: $longitude');
+            setState(() {
+              Rlat = double.tryParse(latitude);
+              Rlong = double.tryParse(longitude);
+            });
+          } else {
+            log('Invalid location format: ${receiver.userLocation}');
+          }
+        }
+      } else {
+        log('Failed to load data: ${response.statusCode}');
+      }
+    } catch (e) {
+      log('Error fetching receiver info: $e');
+    }
+  }
 }
