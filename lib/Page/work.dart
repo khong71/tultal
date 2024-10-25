@@ -17,16 +17,17 @@ import 'package:http/http.dart' as http;
 import 'package:tultal/model/res/getSender.dart';
 
 class Work extends StatefulWidget {
-  final int raiderId;
+ final int raiderId;
   final String senderid;
   final String receiverId;
   final int orderid;
-  const Work(
-      {super.key,
-      required this.raiderId,
-      required this.senderid,
-      required this.receiverId,
-      required this.orderid});
+
+  const Work({
+    required this.raiderId,
+    required this.senderid,
+    required this.receiverId,
+    required this.orderid,
+  });
 
   @override
   State<Work> createState() => _WorkState();
@@ -62,15 +63,19 @@ class _WorkState extends State<Work> {
   }
 
   void _getCurrentLocation() async {
-    try {
-      Position position = await Geolocator.getCurrentPosition(
-          // ignore: deprecated_member_use
-          desiredAccuracy: LocationAccuracy.high);
+  try {
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    if (mounted) {
       setState(() {
         _currentPosition = position;
       });
-    } catch (e) {
-      // Default to the predefined coordinates if unable to get the location
+    }
+  } catch (e) {
+    // Handle location error
+    log('Location error: $e');
+    // Default position can be set as fallback
+    if (mounted) {
       setState(() {
         _currentPosition = Position(
           latitude: 16.246825669508297,
@@ -78,16 +83,18 @@ class _WorkState extends State<Work> {
           timestamp: DateTime.now(),
           accuracy: 0,
           altitude: 0,
-          altitudeAccuracy: 0, // Add this line
+          altitudeAccuracy: 0,
           heading: 0,
-          headingAccuracy: 0, // Add this line
+          headingAccuracy: 0,
           speed: 0,
           speedAccuracy: 0,
-          isMocked: false, // Optional
+          isMocked: false,
         );
       });
     }
   }
+}
+
 
   // Function to update status and turtle position
   void _updateStatus(int newStatus) {
