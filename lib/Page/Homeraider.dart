@@ -365,7 +365,8 @@ class _HomeraiderState extends State<Homeraider> {
                       backgroundColor: Colors.brown,
                     ),
                     onPressed: () async {
-                      await insertwork(context,widget.raiderId,senderid,receiverId,orderid);
+                      await insertwork(context, widget.raiderId, senderid,
+                          receiverId, orderid);
                     },
                     child: const Text('Job work',
                         style: TextStyle(color: Colors.white)),
@@ -401,41 +402,63 @@ class _HomeraiderState extends State<Homeraider> {
 
     log(orders.length.toString());
   }
-  
 
-  Future<void> insertwork(BuildContext context, int raiderId, String senderId, String receiverId, int orderId) async {
-
+  Future<void> insertwork(BuildContext context, int raiderId, String senderId,
+      String receiverId, int orderId) async {
     log(raiderId.toString());
-  var response = await http.post(
-    Uri.parse('$server/InsertDrive'),
-    body: {
-      'drive_image1': '',
-      'drive_image2': '',
-      'order_id': '$orderId',
-      'drive_status': '0',
-      'raider_id': '$raiderId',
-    },
-  );
-
-  if (response.statusCode == 200) {
-    // ถ้า insert สำเร็จ ทำการดำเนินการต่อ
-    print('Insert successful');
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Work(
-          raiderId: raiderId, // ต้องส่งค่าเป็น int
-          senderid: senderId, // ต้องส่งค่าเป็น String
-          receiverId: receiverId, // ต้องส่งค่าเป็น String
-          orderid: orderId, // ต้องส่งค่าเป็น int
-        ),
-      ),
+    var response = await http.post(
+      Uri.parse('$server/InsertDrive'),
+      body: {
+        'drive_image1': '',
+        'drive_image2': '',
+        'order_id': '$orderId',
+        'drive_status': '0',
+        'raider_id': '$raiderId',
+      },
     );
-  } else {
-    // ถ้า insert ไม่สำเร็จ แสดง error message
-    print('Insert failed with status: ${response.statusCode}');
+
+    if (response.statusCode == 200) {
+      // ถ้า insert สำเร็จ ทำการดำเนินการต่อ
+      print('Insert successful');
+      var url = Uri.parse('$server/PutstatusOrder?id=$orderId');
+
+      // Create the request body
+      var requestBody = {
+        "status": "1" // Update this status as needed
+      };
+
+      // Make the PUT request
+      var res = await http.put(
+        url,
+        body: jsonEncode(requestBody), // Convert request body to JSON
+        headers: {
+          'Content-Type': 'application/json', // Set content type for JSON
+        },
+      );
+
+      // Check the response status of the PUT request
+      if (res.statusCode == 200) {
+        print('Order status updated successfully');
+
+        // Navigate to the Work page
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Work(
+              raiderId: raiderId, // Should be an int
+              senderid: senderId, // Should be a String
+              receiverId: receiverId, // Should be a String
+              orderid: orderId, // Should be an int
+            ),
+          ),
+        );
+      } else {
+        // Handle unsuccessful update
+        print('Failed to update order status: ${res.body}');
+      }
+    } else {
+      // ถ้า insert ไม่สำเร็จ แสดง error message
+      print('Insert failed with status: ${response.statusCode}');
+    }
   }
-}
-
-
 }

@@ -16,7 +16,6 @@ class GetOrder {
   String orderInfo;
   String orderSenderId;
   String orderReceiverId;
-  int status;
 
   GetOrder({
     required this.orderid,
@@ -24,7 +23,6 @@ class GetOrder {
     required this.orderInfo,
     required this.orderSenderId,
     required this.orderReceiverId,
-    required this.status,
   });
 
   factory GetOrder.fromJson(Map<String, dynamic> json) => GetOrder(
@@ -33,7 +31,6 @@ class GetOrder {
         orderInfo: json["order_info"],
         orderSenderId: json["order_sender_id"],
         orderReceiverId: json["order_receiver_id"],
-        status: json["status"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -42,6 +39,5 @@ class GetOrder {
         "order_info": orderInfo,
         "order_sender_id": orderSenderId,
         "order_receiver_id": orderReceiverId,
-        "status": status,
       };
 }

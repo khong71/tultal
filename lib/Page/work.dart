@@ -121,7 +121,7 @@ class _WorkState extends State<Work> {
               "https://e7.pngegg.com/pngimages/317/149/png-clipart-gratis-price-silhouette-mail-order-others-child-hand.png", // Example value, replace with actual user data if needed
           "drive_image2":
               "", // Example value, replace with actual image data if needed
-          "drive_status": "1", // Status code for pickup
+          "drive_status": "2", // Status code for pickup
         };
 
         // Send the PUT request
@@ -153,7 +153,7 @@ class _WorkState extends State<Work> {
               "https://e7.pngegg.com/pngimages/317/149/png-clipart-gratis-price-silhouette-mail-order-others-child-hand.png", // Example value, replace with actual user data if needed
           "drive_image2":
               "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4ziUxQV7OU-h6oiCwZotYw4f5nVRe12TNdA&s", // Example value, replace with actual image data if needed
-          "drive_status": "2", // Status code for pickup
+          "drive_status": "3", // Status code for pickup
         };
 
         // Send the PUT request
