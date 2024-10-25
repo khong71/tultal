@@ -136,7 +136,7 @@ class _CheckstatusState extends State<Checkstatus> {
         ),
         body: Column(
           children: [
-            _buildStatusStepper(),
+            // _buildStatusStepper(),
             Expanded(child: _buildMap()),
             _buildOrderInfo(), // Display order information below the map
           ],
@@ -145,20 +145,20 @@ class _CheckstatusState extends State<Checkstatus> {
     );
   }
 
-  Widget _buildStatusStepper() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _buildStatusIcon('On the way', 0),
-          _buildStatusIcon('Picked up', 1),
-          _buildStatusIcon('At destination', 2),
-          _buildStatusIcon('Delivered', 3),
-        ],
-      ),
-    );
-  }
+  // Widget _buildStatusStepper() {
+  //   return Padding(
+  //     padding: const EdgeInsets.all(8.0),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         _buildStatusIcon('On the way', 0),
+  //         _buildStatusIcon('Picked up', 1),
+  //         _buildStatusIcon('At destination', 2),
+  //         _buildStatusIcon('Delivered', 3),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildStatusIcon(String label, int step) {
     return Column(
