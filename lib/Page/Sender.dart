@@ -511,7 +511,7 @@ class _SenderState extends State<Sender> {
       orderImage: img,
       orderInfo: info,
       orderSenderId: sender.toString(),
-      orderReceiverId: receiver.toString(),
+      orderReceiverId: receiver.toString(), status: '',
     );
 
   // Log the PostOrder data

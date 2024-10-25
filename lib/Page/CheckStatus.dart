@@ -52,10 +52,7 @@ class _CheckstatusState extends State<Checkstatus> {
 
   double? Rlat;
   double? Rlong;
-  String server = '';
 
-  double? Rlat;
-  double? Rlong;
 
   @override
   void initState() {
